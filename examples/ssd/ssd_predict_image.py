@@ -10,6 +10,10 @@ import stat
 import subprocess
 import sys
 
+import numpy as np
+import cv2
+import time
+
 # Add extra layers on top of a "base" network (e.g. VGGNet or Inception).
 def AddExtraLayers(net, use_batchnorm=True):
     use_relu = True
@@ -71,7 +75,7 @@ resize_height = 300
 # Set the number of test iterations to the maximum integer number.
 test_iter = int(math.pow(2, 29) - 1)
 # Use GPU or CPU
-solver_mode = P.Solver.GPU
+solver_mode = P.Solver.CPU
 # Defining which GPUs to use.
 gpus = "0"
 # Number of frames to be processed per batch.
@@ -198,11 +202,16 @@ make_if_not_exist(snapshot_dir)
 
 # Create test net.
 net = caffe.NetSpec()
+
 net.data = L.VideoData(
         video_data_param=dict(video_type=P.VideoData.WEBCAM, device_id=webcam_id),
         data_param=dict(batch_size=test_batch_size),
         transform_param=test_transform_param)
 
+#net.data = L.Input(shape=(1,3,300,300))
+
+#net.data, net.labels = L.MemoryData(batch_size = test_batch_size, height = 300, width = 300, channels = 3, ntop = 2)
+	
 VGGNetBody(net, from_layer='data', fully_conv=True, reduced=True, dilated=True,
     dropout=False)
 
@@ -236,9 +245,51 @@ net.detection_out = L.DetectionOutput(*mbox_layers,
 net.slience = L.Silence(net.detection_out, ntop=0,
     include=dict(phase=caffe_pb2.Phase.Value('TEST')))
 
-with open(test_net_file, 'w') as f:
-    print('name: "{}_test"'.format(model_name), file=f)
-    print(net.to_proto(), file=f)
+#with open(test_net_file, 'w') as f:
+#    print('name: "{}_test"'.format(model_name), file=f)
+#    print(net.to_proto(), file=f)
+
+# load net to work with it
+net = caffe.Net("models/VGGNet/VOC0712/SSD_300x300/deploy.prototxt", "models/VGGNet/VOC0712/SSD_300x300/VGG_VOC0712_SSD_300x300_iter_60000.caffemodel", caffe.TEST)
+
+# load image
+image_path = sys.argv[1]
+#image = caffe.io.load_image(image_path)
+#image = cv2.resize(image, (300, 300))
+#cv2.imshow('image',image)
+#cv2.waitKey(0)
+#cv2.destroyAllWindows()
+
+# preprocessing
+transformer = caffe.io.Transformer({'data': net.blobs['data'].data.shape})
+
+# load mean image
+transformer.set_mean('data', np.load('python/caffe/imagenet/ilsvrc_2012_mean.npy').mean(1).mean(1))
+
+# transpose image from heightx,width,channels to c,h,w
+transformer.set_transpose('data', (2,0,1))
+# need if using RGB instead of BGR (caffe needs BGR)
+transformer.set_channel_swap('data', (2,1,0)) 
+# normalize values
+transformer.set_raw_scale('data', 255.0)
+
+net.blobs['data'].reshape(1,3,300,300)
+
+# preprocess image
+image = transformer.preprocess('data', caffe.io.load_image(image_path))
+net.blobs['data'].data[...] = transformer.preprocess('data', image)
+print(image.shape)
+#print(np.array_equal(image,img[0])) 
+#net.set_input_arrays(img, np.array([[[[1]]]], np.float32)) 
+
+for i in range(1000):
+    start_time = time.time()
+    out = net.forward()
+    #print(out['detection_out'].shape)
+    print(time.time() - start_time)
+
+
+sys.exit(2)
 
 # Create job file.
 with open(job_file, 'w') as f:
