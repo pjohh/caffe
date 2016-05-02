@@ -112,7 +112,8 @@ void VideoDataLayer<Dtype>::load_batch(Batch<Dtype>* batch) {
       //cv::Mat cv_img = cv::imread("examples/images/cat.jpg");
       CHECK(cv_img.data) << "Could not load image from webcam!";
       // crop image (x,y,height, width)
-      //cv_img = cv_img(cv::Rect(60, 45, 520, 390));
+      //cv_img = cv_img(cv::Rect(100, 75, 440, 330)); //medium zoom
+      //cv_img = cv_img(cv::Rect(150, 112, 340, 255)); //large zoom
       read_time += timer.MicroSeconds();
       timer.Start();
       // Apply transformations (mirror, crop...) to the image
