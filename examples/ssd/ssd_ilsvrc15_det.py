@@ -220,7 +220,7 @@ pretrain_model = "models/VGGNet/VGG_ILSVRC_16_layers_fc_reduced.caffemodel"
 label_map_file = "data/ILSVRC2015_DET/labelmap.prototxt"
 
 # MultiBoxLoss parameters.
-num_classes = 21
+num_classes = 201
 share_location = True
 background_label_id=0
 train_on_diff_gt = True
@@ -314,7 +314,7 @@ elif normalization_mode == P.Loss.FULL:
 freeze_layers = ['conv1_1', 'conv1_2', 'conv2_1', 'conv2_2']
 
 # Evaluate on whole test set.
-num_test_image = 4952
+num_test_image = 20121
 test_batch_size = 1
 test_iter = num_test_image / test_batch_size
 
@@ -329,12 +329,12 @@ solver_param = {
     'iter_size': iter_size,
     'max_iter': 60000,
     'snapshot': 40000,
-    'display': 10,
+    'display': 1,
     'average_loss': 10,
     'type': "SGD",
     'solver_mode': solver_mode,
     'device_id': device_id,
-    'debug_info': False,
+    'debug_info': True,
     'snapshot_after_train': True,
     # Test parameters
     'test_iter': [test_iter],
