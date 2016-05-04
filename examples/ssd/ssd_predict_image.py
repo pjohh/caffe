@@ -15,7 +15,7 @@ import time
 import matplotlib.pyplot as plt
 
 # Use GPU or CPU
-solver_mode = P.Solver.CPU
+caffe.set_mode_gpu()
 
 # load PASCAL VOC labels
 voc_labelmap_file = 'data/VOC0712/labelmap_voc.prototxt'
@@ -115,4 +115,4 @@ fig.axes.get_xaxis().set_visible(False)
 fig.axes.get_yaxis().set_visible(False)
 
 raw_input("press key to exit")
-plt.savefig(sys.argv[2], bbox_inches='tight', pad_inches = 0)
+# plt.savefig(sys.argv[2], bbox_inches='tight', pad_inches = 0)
