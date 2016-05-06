@@ -45,7 +45,7 @@ do
   # Generate image name and size infomation.
   if [ $dataset == "val" ]
   then
-    $bash_dir/../../build/tools/get_image_size $root_dir $dst_file $bash_dir/"test_name_size.txt"
+    $bash_dir/../../build/tools/get_image_size $root_dir $dst_file $bash_dir/$dataset"_name_size.txt"
   fi
   
   # Shuffle trainval file.
@@ -56,6 +56,6 @@ do
     mv $rand_file $dst_file
   fi
 
-  #rm -f $label_file
-  #rm -f $img_file
+  rm -f $label_file
+  rm -f $img_file
 done
