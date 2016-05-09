@@ -339,7 +339,7 @@ solver_param = {
     'snapshot_after_train': True,
     # Test parameters
     'test_iter': [test_iter],
-    'test_interval': 1000,
+    'test_interval': 25000,
     'eval_type': "detection",
     'ap_version': "11point",
     'test_initialization': False,
