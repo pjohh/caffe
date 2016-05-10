@@ -157,6 +157,8 @@ if max_iter == 0:
 # The resume model.
 pretrain_model = "{}_iter_{}.caffemodel".format(snapshot_prefix, max_iter)
 
+print("Loading {} ...".format(pretrain_model))
+
 # parameters for generating priors.
 # minimum dimension of input image
 min_dim = 300

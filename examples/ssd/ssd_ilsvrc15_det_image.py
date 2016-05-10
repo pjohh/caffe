@@ -38,9 +38,24 @@ def get_labelname(labelmap, labels):
         assert found == True
     return labelnames
 
+snapshot_dir = "models/VGGNet/ILSVRC15_DET/SSD_300x300"
+
+# Find most recent snapshot of the model
+max_iter = 0
+for file in os.listdir(snapshot_dir):
+  if file.endswith(".caffemodel"):
+    basename = os.path.splitext(file)[0]
+    iter = int(basename.split("{}_iter_".format("ILSVRC15_DET_SSD_300x300"))[1])
+    if iter > max_iter:
+      max_iter = iter
+
+if max_iter == 0:
+  print("Cannot find snapshot in {}".format(snapshot_dir))
+  sys.exit()
+
 # load model
 model_def = 'models/VGGNet/ILSVRC15_DET/SSD_300x300/deploy.prototxt'
-model_weights = 'models/VGGNet/ILSVRC15_DET/SSD_300x300/ILSVRC15_DET_SSD_300x300_iter_100000.caffemodel'
+model_weights = 'models/VGGNet/ILSVRC15_DET/SSD_300x300/ILSVRC15_DET_SSD_300x300_iter_{}.caffemodel'.format(max_iter)
 
 net = caffe.Net(model_def,      # defines the structure of the model
                 model_weights,  # contains the trained weights
@@ -81,7 +96,7 @@ det_xmax = detections[0,0,:,5]
 det_ymax = detections[0,0,:,6]
 
 # Get detections with confidence higher than 0.6.
-top_indices = [i for i, conf in enumerate(det_conf) if conf >= 0.3]
+top_indices = [i for i, conf in enumerate(det_conf) if conf >= 0.2]
 
 top_conf = det_conf[top_indices]
 top_label_indices = det_label[top_indices].tolist()
