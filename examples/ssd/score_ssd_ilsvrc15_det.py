@@ -52,9 +52,9 @@ caffe_root = os.getcwd()
 run_soon = True
 
 # The database file for training data
-train_data = "examples/ILSVRC2015_DET/ILSVRC2015_DET_train_lmdb"
+train_data = "examples/ILSVRC15_DET/ILSVRC15_DET_train_lmdb"
 # The database file for testing data
-test_data = "examples/ILSVRC2015_DET/ILSVRC2015_DET_val_lmdb"
+test_data = "examples/ILSVRC15_DET/ILSVRC15_DET_val_lmdb"
 # Specify the batch sampler.
 resize_width = 300
 resize_height = 300
@@ -189,7 +189,7 @@ else:
 # Modify the job name if you want.
 job_name = "SSD_{}".format(resize)
 # The name of the model. Modify it if you want.
-model_name = "ILSVRC15_DET_{}".format(job_name)
+model_name = "VGG_ILSVRC15_DET_{}".format(job_name)
 
 # Directory which stores the model .prototxt file.
 save_dir = "models/VGGNet/ILSVRC15_DET/{}_score".format(job_name)
@@ -224,11 +224,11 @@ if max_iter == 0:
   sys.exit()
 
 # Stores the test image names and sizes. 
-name_size_file = "data/ILSVRC2015_DET/val_name_size.txt"
+name_size_file = "data/ILSVRC15_DET/val_name_size.txt"
 # The pretrained model. We use the Fully convolutional reduced (atrous) VGGNet.
 pretrain_model = "models/VGGNet/VGG_ILSVRC_16_layers_fc_reduced.caffemodel"
 # Stores LabelMapItem.
-label_map_file = "data/ILSVRC2015_DET/labelmap.prototxt"
+label_map_file = "data/ILSVRC15_DET/labelmap.prototxt"
 
 # MultiBoxLoss parameters.
 num_classes = 201
