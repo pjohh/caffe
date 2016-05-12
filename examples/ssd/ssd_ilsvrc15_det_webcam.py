@@ -62,7 +62,7 @@ background_label_id=0
 conf_loss_type = P.MultiBoxLoss.SOFTMAX
 code_type = P.PriorBox.CENTER_SIZE
 # Stores LabelMapItem.
-label_map_file = "data/ILSVRC2015_DET/labelmap.prototxt"
+label_map_file = "data/ILSVRC15_DET/labelmap.prototxt"
 # The resized image size
 resize_width = 300
 resize_height = 300
@@ -125,7 +125,7 @@ det_out_param = {
 # The job name should be same as the name used in examples/ssd/ssd_pascal.py.
 job_name = "SSD_{}".format(resize)
 # The name of the model. Modify it if you want.
-model_name = "ILSVRC15_DET_{}".format(job_name)
+model_name = "VGG_ILSVRC15_DET_{}".format(job_name)
 
 # Directory which stores the model .prototxt file.
 save_dir = "models/VGGNet/ILSVRC15_DET/{}_webcam".format(job_name)
