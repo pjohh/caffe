@@ -1,5 +1,3 @@
-#!/usr/bin/python
-
 from __future__ import print_function
 import caffe
 from caffe.model_libs import *
@@ -31,7 +29,6 @@ image_size = int(image_size)
 if image_size != 300 and image_size != 500:
     print('needs -s <image size> argument (300 or 500)')
     sys.exit(2)
-
 
 # Add extra layers on top of a "base" network (e.g. VGGNet or Inception).
 def AddExtraLayers(net, use_batchnorm=True):
@@ -79,13 +76,13 @@ webcam_id = 0
 # If true, use batch norm for all newly added layers.
 # Currently only the non batch norm version has been tested.
 use_batchnorm = False
-num_classes = 21
+num_classes = 81
 share_location = True
 background_label_id=0
 conf_loss_type = P.MultiBoxLoss.SOFTMAX
 code_type = P.PriorBox.CENTER_SIZE
 # Stores LabelMapItem.
-label_map_file = "data/VOC0712/labelmap_voc.prototxt"
+label_map_file = "data/coco/labelmap_coco.prototxt"
 # The resized image size
 resize_width = image_size
 resize_height = image_size
@@ -100,7 +97,7 @@ gpus = "0"
 # Number of frames to be processed per batch.
 test_batch_size = 1
 # Only display high quality detections whose scores are higher than a threshold.
-visualize_threshold = 0.3
+visualize_threshold = 0.5
 # Size of webcam image.
 webcam_width = 640
 webcam_height = 480
@@ -148,14 +145,14 @@ det_out_param = {
 # The job name should be same as the name used in examples/ssd/ssd_pascal.py.
 job_name = "SSD_{}".format(resize)
 # The name of the model. Modify it if you want.
-model_name = "VGG_VOC0712_{}".format(job_name)
+model_name = "VGG_coco_{}".format(job_name)
 
 # Directory which stores the model .prototxt file.
-save_dir = "models/VGGNet/VOC0712/{}_webcam".format(job_name)
+save_dir = "models/VGGNet/coco/{}_webcam".format(job_name)
 # Directory which stores the snapshot of trained models.
-snapshot_dir = "models/VGGNet/VOC0712/{}".format(job_name)
+snapshot_dir = "models/VGGNet/coco/{}".format(job_name)
 # Directory which stores the job script and log file.
-job_dir = "jobs/VGGNet/VOC0712/{}_webcam".format(job_name)
+job_dir = "jobs/VGGNet/coco/{}_webcam".format(job_name)
 
 # model definition files.
 test_net_file = "{}/test.prototxt".format(save_dir)
@@ -179,7 +176,7 @@ if max_iter == 0:
 
 # The resume model.
 pretrain_model = "{}_iter_{}.caffemodel".format(snapshot_prefix, max_iter)
-
+print("LOADING NET: {}".format(pretrain_model))
 # parameters for generating priors.
 # minimum dimension of input image
 min_dim = image_size
@@ -191,7 +188,7 @@ min_dim = image_size
 # pool6 ==> 1 x 1
 mbox_source_layers = ['conv4_3', 'fc7', 'conv6_2', 'conv7_2', 'conv8_2', 'pool6']
 # in percent %
-min_ratio = 20
+min_ratio = 10
 max_ratio = 95
 step = int(math.floor((max_ratio - min_ratio) / (len(mbox_source_layers) - 2)))
 min_sizes = []
@@ -199,7 +196,7 @@ max_sizes = []
 for ratio in xrange(min_ratio, max_ratio, step):
   min_sizes.append(min_dim * ratio / 100.)
   max_sizes.append(min_dim * (ratio + step) / 100.)
-min_sizes = [min_dim * 10 / 100.] + min_sizes
+min_sizes = [min_dim * 7 / 100.] + min_sizes
 max_sizes = [[]] + max_sizes
 aspect_ratios = [[2], [2, 3], [2, 3], [2, 3], [2, 3], [2, 3]]
 # L2 normalize conv4_3.
@@ -259,9 +256,9 @@ net.detection_out = L.DetectionOutput(*mbox_layers,
 net.slience = L.Silence(net.detection_out, ntop=0,
     include=dict(phase=caffe_pb2.Phase.Value('TEST')))
 
-with open(test_net_file, 'w') as f:
-    print('name: "{}_test"'.format(model_name), file=f)
-    print(net.to_proto(), file=f)
+#with open(test_net_file, 'w') as f:
+#    print('name: "{}_test"'.format(model_name), file=f)
+#    print(net.to_proto(), file=f)
 
 # Create job file.
 with open(job_file, 'w') as f:
