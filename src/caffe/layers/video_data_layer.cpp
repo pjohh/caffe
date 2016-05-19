@@ -107,7 +107,7 @@ void VideoDataLayer<Dtype>::load_batch(Batch<Dtype>* batch) {
     if (video_type_ == VideoDataParameter_VideoType_WEBCAM) {
       cv::Mat cv_img;
       // use to skip frames --> reduce input lagg
-      //for (int skip_frame = 0; skip_frame < 15; ++skip_frame) cap_.grab();
+      for (int skip_frame = 0; skip_frame < 10; ++skip_frame) cap_.grab();
       cap_ >> cv_img;
       CHECK(cv_img.data) << "Could not load image from webcam!";
       // crop image (x,y,height, width)
