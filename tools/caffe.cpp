@@ -256,8 +256,11 @@ int test() {
   float loss = 0;
   for (int i = 0; i < FLAGS_iterations; ++i) {
     float iter_loss;
+    //Timer forward_timer;
+    //forward_timer.Start();
     const vector<Blob<float>*>& result =
         caffe_net.Forward(&iter_loss);
+    //LOG(INFO) << "Time for Forward Step: " << forward_timer.MilliSeconds() << " ms";
     loss += iter_loss;
     int idx = 0;
     for (int j = 0; j < result.size(); ++j) {

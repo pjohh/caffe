@@ -14,6 +14,8 @@
 
 namespace caffe {
 
+//cv::Mat cv_img = cv::imread("../caffe_faster_rcnn/faster_rcnn/004545.jpg");
+
 template <typename Dtype>
 VideoDataLayer<Dtype>::VideoDataLayer(const LayerParameter& param)
   : BasePrefetchingDataLayer<Dtype>(param) {
@@ -44,7 +46,6 @@ void VideoDataLayer<Dtype>::DataLayerSetUp(
     // Read an image, and use it to initialize the top blob.
     cv::Mat cv_img;
     cap_ >> cv_img;
-    //cv::Mat cv_img = cv::imread("examples/images/cat.jpg");
     CHECK(cv_img.data) << "Could not load image from webcam!";
     // Use data_transformer to infer the expected blob shape from a cv_image.
     top_shape = this->data_transformer_->InferBlobShape(cv_img);
@@ -86,7 +87,6 @@ void VideoDataLayer<Dtype>::load_batch(Batch<Dtype>* batch) {
   if (video_type_ == VideoDataParameter_VideoType_WEBCAM) {
     cv::Mat cv_img;
     cap_ >> cv_img;
-    //cv::Mat cv_img = cv::imread("examples/images/cat.jpg");
     CHECK(cv_img.data) << "Could not load image from webcam!";
     // Use data_transformer to infer the expected blob shape from a cv_img.
     top_shape = this->data_transformer_->InferBlobShape(cv_img);
@@ -109,7 +109,6 @@ void VideoDataLayer<Dtype>::load_batch(Batch<Dtype>* batch) {
       // use to skip frames --> reduce input lagg
       //for (int skip_frame = 0; skip_frame < 15; ++skip_frame) cap_.grab();
       cap_ >> cv_img;
-      //cv::Mat cv_img = cv::imread("examples/images/cat.jpg");
       CHECK(cv_img.data) << "Could not load image from webcam!";
       // crop image (x,y,height, width)
       //cv_img = cv_img(cv::Rect(100, 75, 440, 330)); //medium zoom
