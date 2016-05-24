@@ -9,6 +9,26 @@ import shutil
 import stat
 import subprocess
 import sys
+import getopt
+
+# get image size (300 or 500)
+image_size = 0
+try:
+    opts, args = getopt.getopt(sys.argv[1:],"hs:",["size="])
+except getopt.GetoptError:
+      print('needs -s <image size> argument (300 or 500)')
+      sys.exit(2)
+for opt, arg in opts:
+    if opt == '-h':
+        print('needs -s <image size> argument (300 or 500)')
+        sys.exit()
+    elif opt in ("-s", "--size"):
+         image_size = arg
+
+image_size = int(image_size)
+if image_size != 300 and image_size != 500:
+    print('needs -s <image size> argument (300 or 500)')
+    sys.exit(2)
 
 # Add extra layers on top of a "base" network (e.g. VGGNet or Inception).
 def AddExtraLayers(net, use_batchnorm=True):
@@ -24,7 +44,7 @@ def AddExtraLayers(net, use_batchnorm=True):
     out_layer = "conv6_2"
     ConvBNLayer(net, from_layer, out_layer, use_batchnorm, use_relu, 512, 3, 1, 2)
 
-    for i in xrange(7, 9):
+    for i in xrange(7, 9 if image_size == 300 else 10):
       from_layer = out_layer
       out_layer = "conv{}_1".format(i)
       ConvBNLayer(net, from_layer, out_layer, use_batchnorm, use_relu, 128, 1, 0, 1)
@@ -64,8 +84,8 @@ code_type = P.PriorBox.CENTER_SIZE
 # Stores LabelMapItem.
 label_map_file = "data/myDataSet/labelmap.prototxt"
 # The resized image size
-resize_width = 300
-resize_height = 300
+resize_width = image_size
+resize_height = image_size
 
 # Parameters needed for test.
 # Set the number of test iterations to the maximum integer number.
@@ -161,28 +181,37 @@ print("Loading {} ...".format(pretrain_model))
 
 # parameters for generating priors.
 # minimum dimension of input image
-min_dim = 300
+min_dim = image_size
 # conv4_3 ==> 38 x 38
 # fc7 ==> 19 x 19
 # conv6_2 ==> 10 x 10
 # conv7_2 ==> 5 x 5
 # conv8_2 ==> 3 x 3
 # pool6 ==> 1 x 1
-mbox_source_layers = ['conv4_3', 'fc7', 'conv6_2', 'conv7_2', 'conv8_2', 'pool6']
+if image_size == 500:
+    mbox_source_layers = ['conv4_3', 'fc7', 'conv6_2', 'conv7_2', 'conv8_2', 'conv9_2', 'pool6']
+else:
+    mbox_source_layers = ['conv4_3', 'fc7', 'conv6_2', 'conv7_2', 'conv8_2', 'pool6']
 # in percent %
 min_ratio = 10
 max_ratio = 95
 step = int(math.floor((max_ratio - min_ratio) / (len(mbox_source_layers) - 2)))
 min_sizes = []
 max_sizes = []
-for ratio in xrange(min_ratio, max_ratio, step):
+for ratio in xrange(min_ratio, max_ratio + 1, step):
   min_sizes.append(min_dim * ratio / 100.)
   max_sizes.append(min_dim * (ratio + step) / 100.)
 min_sizes = [min_dim * 7 / 100.] + min_sizes
 max_sizes = [[]] + max_sizes
-aspect_ratios = [[2], [2, 3], [2, 3], [2, 3], [2, 3], [2, 3]]
+if image_size == 500:
+    aspect_ratios = [[2], [2, 3], [2, 3], [2, 3], [2, 3], [2, 3]] #, [2, 3] <-- TODO add this to training script!
+else:
+    aspect_ratios = [[2], [2, 3], [2, 3], [2, 3], [2, 3], [2, 3]]
 # L2 normalize conv4_3.
-normalizations = [20, -1, -1, -1, -1, -1]
+if image_size == 500:
+    normalizations = [20, -1, -1, -1, -1, -1, -1]
+else:
+    normalizations = [20, -1, -1, -1, -1, -1]
 # variance used to encode/decode prior bboxes.
 if code_type == P.PriorBox.CENTER_SIZE:
   prior_variance = [0.1, 0.1, 0.2, 0.2]
