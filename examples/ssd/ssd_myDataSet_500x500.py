@@ -24,7 +24,7 @@ def AddExtraLayers(net, use_batchnorm=True):
     out_layer = "conv6_2"
     ConvBNLayer(net, from_layer, out_layer, use_batchnorm, use_relu, 512, 3, 1, 2)
 
-    for i in xrange(7, 9):
+    for i in xrange(7, 10):
       from_layer = out_layer
       out_layer = "conv{}_1".format(i)
       ConvBNLayer(net, from_layer, out_layer, use_batchnorm, use_relu, 128, 1, 0, 1)
@@ -54,12 +54,12 @@ resume_training = True
 remove_old_models = False
 
 # The database file for training data
-train_data = "examples/ILSVRC15_DET/ILSVRC15_DET_train_lmdb"
+train_data = "examples/myDataSet/myDataSet_train_lmdb"
 # The database file for testing data
-test_data = "examples/ILSVRC15_DET/ILSVRC15_DET_val_lmdb"
+test_data = "examples/myDataSet/myDataSet_val_lmdb"
 # Specify the batch sampler.
-resize_width = 300
-resize_height = 300
+resize_width = 500
+resize_height = 500
 resize = "{}x{}".format(resize_width, resize_height)
 batch_sampler = [
         {
@@ -191,16 +191,16 @@ else:
 # Modify the job name if you want.
 job_name = "SSD_{}".format(resize)
 # The name of the model. Modify it if you want.
-model_name = "VGG_ILSVRC15_DET_{}".format(job_name)
+model_name = "VGG_myDataSet_{}".format(job_name)
 
 # Directory which stores the model .prototxt file.
-save_dir = "models/VGGNet/ILSVRC15_DET/{}".format(job_name)
+save_dir = "models/VGGNet/myDataSet/{}".format(job_name)
 # Directory which stores the snapshot of models.
-snapshot_dir = "models/VGGNet/ILSVRC15_DET/{}".format(job_name)
+snapshot_dir = "models/VGGNet/myDataSet/{}".format(job_name)
 # Directory which stores the job script and log file.
-job_dir = "jobs/VGGNet/ILSVRC15_DET/{}".format(job_name)
+job_dir = "jobs/VGGNet/myDataSet/{}".format(job_name)
 # Directory which stores the detection results.
-output_result_dir = "{}/data/ILSVRC2015/results/{}/Main".format(os.environ['HOME'], job_name)
+output_result_dir = "{}/data/myDataSet/results/{}/Main".format(os.environ['HOME'], job_name)
 
 # model definition files.
 train_net_file = "{}/train.prototxt".format(save_dir)
@@ -213,14 +213,14 @@ snapshot_prefix = "{}/{}".format(snapshot_dir, model_name)
 job_file = "{}/{}.sh".format(job_dir, model_name)
 
 # Stores the test image names and sizes. Created by data/VOC0712/create_list.sh
-name_size_file = "data/ILSVRC15_DET/val_name_size.txt"
+name_size_file = "data/myDataSet/val_name_size.txt"
 # The pretrained model. We use the Fully convolutional reduced (atrous) VGGNet.
 pretrain_model = "models/VGGNet/VGG_ILSVRC_16_layers_fc_reduced.caffemodel"
 # Stores LabelMapItem.
-label_map_file = "data/ILSVRC15_DET/labelmap.prototxt"
+label_map_file = "data/myDataSet/labelmap.prototxt"
 
 # MultiBoxLoss parameters.
-num_classes = 201
+num_classes = 5
 share_location = True
 background_label_id=0
 train_on_diff_gt = True
@@ -250,14 +250,14 @@ loss_param = {
 
 # parameters for generating priors.
 # minimum dimension of input image
-min_dim = 300
+min_dim = 500
 # conv4_3 ==> 38 x 38
 # fc7 ==> 19 x 19
 # conv6_2 ==> 10 x 10
 # conv7_2 ==> 5 x 5
 # conv8_2 ==> 3 x 3
 # pool6 ==> 1 x 1
-mbox_source_layers = ['conv4_3', 'fc7', 'conv6_2', 'conv7_2', 'conv8_2', 'pool6']
+mbox_source_layers = ['conv4_3', 'fc7', 'conv6_2', 'conv7_2', 'conv8_2', 'conv9_2', 'pool6']
 # in percent %
 min_ratio = 10
 max_ratio = 95
@@ -271,7 +271,7 @@ min_sizes = [min_dim * 7 / 100.] + min_sizes
 max_sizes = [[]] + max_sizes
 aspect_ratios = [[2], [2, 3], [2, 3], [2, 3], [2, 3], [2, 3]]
 # L2 normalize conv4_3.
-normalizations = [20, -1, -1, -1, -1, -1]
+normalizations = [20, -1, -1, -1, -1, -1, -1]
 # variance used to encode/decode prior bboxes.
 if code_type == P.PriorBox.CENTER_SIZE:
   prior_variance = [0.1, 0.1, 0.2, 0.2]
@@ -287,8 +287,8 @@ gpulist = gpus.split(",")
 num_gpus = len(gpulist)
 
 # Divide the mini-batch to different GPUs.
-batch_size = 32
-accum_batch_size = 32
+batch_size = 20
+accum_batch_size = 20
 iter_size = accum_batch_size / batch_size
 solver_mode = P.Solver.GPU
 device_id = 0
@@ -314,21 +314,21 @@ elif normalization_mode == P.Loss.FULL:
 freeze_layers = ['conv1_1', 'conv1_2', 'conv2_1', 'conv2_2']
 
 # Evaluate on whole test set.
-num_test_image = 20121
+num_test_image = 15
 test_batch_size = 1
 test_iter = num_test_image / test_batch_size
 
 solver_param = {
     # Train parameters
     'base_lr': base_lr,
-    'momentum': 0.9,
     'weight_decay': 0.0005,
     'lr_policy': "multistep",
+    'stepvalue': [10000, 15000],
     'gamma': 0.1,
-    'stepvalue': [320000, 420000],
+    'momentum': 0.9,
     'iter_size': iter_size,
-    'max_iter': 480000,
-    'snapshot': 50000,
+    'max_iter': 20000,
+    'snapshot': 5000,
     'display': 10,
     'average_loss': 10,
     'type': "SGD",
@@ -338,7 +338,7 @@ solver_param = {
     'snapshot_after_train': True,
     # Test parameters
     'test_iter': [test_iter],
-    'test_interval': 25000,
+    'test_interval': 2500,
     'eval_type': "detection",
     'ap_version': "11point",
     'test_initialization': False,
@@ -489,6 +489,7 @@ train_src_param = '--weights="{}" \\\n'.format(pretrain_model)
 if resume_training:
   if max_iter > 0:
     train_src_param = '--snapshot="{}_iter_{}.solverstate" \\\n'.format(snapshot_prefix, max_iter)
+
 if remove_old_models:
   # Remove any snapshots smaller than max_iter.
   for file in os.listdir(snapshot_dir):

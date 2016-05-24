@@ -49,7 +49,7 @@ caffe_root = os.getcwd()
 run_soon = True
 # Set true if you want to load from most recently saved snapshot.
 # Otherwise, we will load from the pretrain_model defined below.
-resume_training = True
+resume_training = False
 # If true, Remove old model files.
 remove_old_models = False
 
@@ -186,7 +186,7 @@ if use_batchnorm:
     base_lr = 0.04
 else:
     # A learning rate for batch_size = 1, num_gpus = 1.
-    base_lr = 0.000004 #0.00004 unstable in the beginning, start with 0.00003
+    base_lr = 0.00004 #0.00004 unstable in the beginning, start with 0.00003
 
 # Modify the job name if you want.
 job_name = "SSD_{}".format(resize)
@@ -287,8 +287,8 @@ gpulist = gpus.split(",")
 num_gpus = len(gpulist)
 
 # Divide the mini-batch to different GPUs.
-batch_size = 2
-accum_batch_size = 2
+batch_size = 48
+accum_batch_size = 48
 iter_size = accum_batch_size / batch_size
 solver_mode = P.Solver.GPU
 device_id = 0
@@ -323,12 +323,12 @@ solver_param = {
     'base_lr': base_lr,
     'weight_decay': 0.0005,
     'lr_policy': "multistep",
-    'stepvalue': [3000, 5000],
+    'stepvalue': [3000, 6000],
     'gamma': 0.1,
     'momentum': 0.9,
     'iter_size': iter_size,
-    'max_iter': 6000,
-    'snapshot': 1000,
+    'max_iter': 9001,
+    'snapshot': 3001,
     'display': 10,
     'average_loss': 10,
     'type': "SGD",
@@ -338,7 +338,7 @@ solver_param = {
     'snapshot_after_train': True,
     # Test parameters
     'test_iter': [test_iter],
-    'test_interval': 10000,
+    'test_interval': 1000,
     'eval_type': "detection",
     'ap_version': "11point",
     'test_initialization': False,

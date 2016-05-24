@@ -5,7 +5,7 @@ cd $root_dir
 
 redo=1
 data_root_dir="$HOME/data/ILSVRC2015/"
-dataset_name="ILSVRC2015_DET"
+dataset_name="ILSVRC15_DET"
 mapfile="$root_dir/data/$dataset_name/labelmap.prototxt"
 anno_type="detection"
 db="lmdb"
