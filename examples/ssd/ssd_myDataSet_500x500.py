@@ -322,13 +322,13 @@ solver_param = {
     # Train parameters
     'base_lr': base_lr,
     'weight_decay': 0.0005,
-    'lr_policy': "multistep",
-    'stepvalue': [10000, 15000],
+    'lr_policy': "step",
+    'stepsize': 12000,
     'gamma': 0.1,
     'momentum': 0.9,
     'iter_size': iter_size,
-    'max_iter': 20000,
-    'snapshot': 5000,
+    'max_iter': 15000,
+    'snapshot': 5001,
     'display': 10,
     'average_loss': 10,
     'type': "SGD",
@@ -359,7 +359,7 @@ det_out_param = {
         'num_test_image': num_test_image,
         },
     'keep_top_k': 200,
-    'confidence_threshold': 0.01, # remove this line?!
+    #'confidence_threshold': 0.01, # remove this line?!
     'code_type': code_type,
     }
 

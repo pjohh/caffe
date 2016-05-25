@@ -103,8 +103,9 @@ void DetectionOutputLayer<Dtype>::Forward_gpu(
 
   if (num_kept == 0) {
     LOG(INFO) << "Couldn't find any detections";
-    return;
+    //return;
   }
+  else {
   vector<int> top_shape(2, 1);
   top_shape.push_back(num_kept);
   top_shape.push_back(7);
@@ -275,6 +276,7 @@ void DetectionOutputLayer<Dtype>::Forward_gpu(
         name_count_ = 0;
       }
     }
+  }
   }
   if (visualize_) {
 #ifdef USE_OPENCV

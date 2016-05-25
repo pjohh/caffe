@@ -91,7 +91,7 @@ resize_height = image_size
 # Set the number of test iterations to the maximum integer number.
 test_iter = int(math.pow(2, 29) - 1)
 # Use GPU or CPU
-solver_mode = P.Solver.CPU
+solver_mode = P.Solver.GPU
 # Defining which GPUs to use.
 gpus = "0"
 # Number of frames to be processed per batch.
@@ -204,7 +204,7 @@ for ratio in xrange(min_ratio, max_ratio + 1, step):
 min_sizes = [min_dim * 7 / 100.] + min_sizes
 max_sizes = [[]] + max_sizes
 if image_size == 500:
-    aspect_ratios = [[2], [2, 3], [2, 3], [2, 3], [2, 3], [2, 3]] #, [2, 3] <-- TODO add this to training script!
+    aspect_ratios = [[2], [2, 3], [2, 3], [2, 3], [2, 3], [2, 3], [2, 3]]
 else:
     aspect_ratios = [[2], [2, 3], [2, 3], [2, 3], [2, 3], [2, 3]]
 # L2 normalize conv4_3.
