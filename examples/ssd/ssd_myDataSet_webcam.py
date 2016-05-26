@@ -97,7 +97,7 @@ gpus = "0"
 # Number of frames to be processed per batch.
 test_batch_size = 1
 # Only display high quality detections whose scores are higher than a threshold.
-visualize_threshold = 0.5
+visualize_threshold = 0.4
 # Size of webcam image.
 webcam_width = 640
 webcam_height = 480

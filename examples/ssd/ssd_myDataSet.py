@@ -264,7 +264,7 @@ max_ratio = 95
 step = int(math.floor((max_ratio - min_ratio) / (len(mbox_source_layers) - 2)))
 min_sizes = []
 max_sizes = []
-for ratio in xrange(min_ratio, max_ratio + 1, step):
+for ratio in xrange(min_ratio, max_ratio, step):
   min_sizes.append(min_dim * ratio / 100.)
   max_sizes.append(min_dim * (ratio + step) / 100.)
 min_sizes = [min_dim * 7 / 100.] + min_sizes
@@ -287,8 +287,8 @@ gpulist = gpus.split(",")
 num_gpus = len(gpulist)
 
 # Divide the mini-batch to different GPUs.
-batch_size = 48
-accum_batch_size = 48
+batch_size = 20
+accum_batch_size = 20
 iter_size = accum_batch_size / batch_size
 solver_mode = P.Solver.GPU
 device_id = 0
@@ -322,13 +322,13 @@ solver_param = {
     # Train parameters
     'base_lr': base_lr,
     'weight_decay': 0.0005,
-    'lr_policy': "multistep",
-    'stepvalue': [3000, 6000],
+    'lr_policy': "step",
+    'stepsize': 12000,
     'gamma': 0.1,
     'momentum': 0.9,
     'iter_size': iter_size,
-    'max_iter': 9001,
-    'snapshot': 3001,
+    'max_iter': 15000,
+    'snapshot': 2500,
     'display': 10,
     'average_loss': 10,
     'type': "SGD",
@@ -338,7 +338,7 @@ solver_param = {
     'snapshot_after_train': True,
     # Test parameters
     'test_iter': [test_iter],
-    'test_interval': 1000,
+    'test_interval': 2500,
     'eval_type': "detection",
     'ap_version': "11point",
     'test_initialization': False,
@@ -359,7 +359,7 @@ det_out_param = {
         'num_test_image': num_test_image,
         },
     'keep_top_k': 200,
-    'confidence_threshold': 0.01,
+    #'confidence_threshold': 0.01,
     'code_type': code_type,
     }
 
