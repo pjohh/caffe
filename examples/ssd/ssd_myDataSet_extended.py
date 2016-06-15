@@ -314,7 +314,7 @@ elif normalization_mode == P.Loss.FULL:
 freeze_layers = ['conv1_1', 'conv1_2', 'conv2_1', 'conv2_2']
 
 # Evaluate on whole test set.
-num_test_image = 15
+num_test_image = 40
 test_batch_size = 1
 test_iter = num_test_image / test_batch_size
 
@@ -322,13 +322,13 @@ solver_param = {
     # Train parameters
     'base_lr': base_lr,
     'weight_decay': 0.0005,
-    'lr_policy': "step",
-    'stepsize': 12000,
+    'lr_policy': "multistep",
+    'stepvalue': [15000,25000],
     'gamma': 0.1,
     'momentum': 0.9,
     'iter_size': iter_size,
-    'max_iter': 15000,
-    'snapshot': 2500,
+    'max_iter': 30000,
+    'snapshot': 5000,
     'display': 10,
     'average_loss': 10,
     'type': "SGD",

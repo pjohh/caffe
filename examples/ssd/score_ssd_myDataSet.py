@@ -329,7 +329,7 @@ num_gpus = len(gpulist)
 batch_size = 1
 accum_batch_size = 1
 iter_size = accum_batch_size / batch_size
-solver_mode = P.Solver.CPU
+solver_mode = P.Solver.GPU
 device_id = 0
 batch_size_per_device = batch_size
 if solver_mode == P.Solver.GPU and num_gpus > 0:

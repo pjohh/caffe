@@ -16,9 +16,9 @@ import matplotlib.pyplot as plt
 import cv2
 
 cap = cv2.VideoCapture(0)
-cap.set(3,1920)
-cap.set(4,1080)
-out = cv2.VideoWriter('output.avi',cv2.cv.CV_FOURCC(*'XVID'), 3, (1920,1080))
+#cap.set(3,640)
+#cap.set(4,480)
+out = cv2.VideoWriter('output.avi',cv2.cv.CV_FOURCC(*'XVID'), 20, (640,480))
 
 # Use GPU or CPU
 caffe.set_mode_gpu()
@@ -79,6 +79,7 @@ net.blobs['data'].reshape(1,3,300,300)
 
 # load image
 while True:
+    start_time = time.time()
     ret, image = cap.read()
 
     # preprocess image
@@ -97,7 +98,7 @@ while True:
     det_ymax = detections[0,0,:,6]
 
     # Get detections with confidence higher than 0.6.
-    top_indices = [i for i, conf in enumerate(det_conf) if conf >= 0.5]
+    top_indices = [i for i, conf in enumerate(det_conf) if conf >= 0.3]
 
     top_conf = det_conf[top_indices]
     top_label_indices = det_label[top_indices].tolist()
@@ -138,10 +139,9 @@ while True:
         coords = (xmin, ymin), xmax-xmin+1, ymax-ymin+1
         color = colors[i % len(colors)]
         cv2.putText(image, name,(xmin,ymin-baseline), cv2.FONT_HERSHEY_SIMPLEX, 0.8,(0,0,0),2)
-        
-    
    
     cv2.imshow("detections", image)
     out.write(image)
+    print("time for frame: {}".format(time.time() - start_time))
     if cv2.waitKey(1) != -1:
         break
