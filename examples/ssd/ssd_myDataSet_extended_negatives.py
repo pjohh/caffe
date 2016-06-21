@@ -49,7 +49,7 @@ caffe_root = os.getcwd()
 run_soon = True
 # Set true if you want to load from most recently saved snapshot.
 # Otherwise, we will load from the pretrain_model defined below.
-resume_training = False
+resume_training = True
 # If true, Remove old model files.
 remove_old_models = False
 
@@ -323,12 +323,12 @@ solver_param = {
     'base_lr': base_lr,
     'weight_decay': 0.0005,
     'lr_policy': "multistep",
-    'stepvalue': [15000,20000],
+    'stepvalue': [5000,10000, 15000],
     'gamma': 0.1,
     'momentum': 0.9,
     'iter_size': iter_size,
-    'max_iter': 25000,
-    'snapshot': 5000,
+    'max_iter': 20000,
+    'snapshot': 2500,
     'display': 10,
     'average_loss': 10,
     'type': "SGD",
@@ -338,7 +338,7 @@ solver_param = {
     'snapshot_after_train': True,
     # Test parameters
     'test_iter': [test_iter],
-    'test_interval': 2500,
+    'test_interval': 1000,
     'eval_type': "detection",
     'ap_version': "11point",
     'test_initialization': False,

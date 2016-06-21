@@ -40,15 +40,15 @@ def get_labelname(labelmap, labels):
         assert found == True
     return labelnames
 
-for ssd_size in ['SSD_300x300', 'SSD_500x500']:
-    snapshot_dir = "models/VGGNet/myDataSet_extended/{}".format(ssd_size)
+for ssd_size in ['SSD_300x300']: #, 'SSD_500x500']:
+    snapshot_dir = "models/VGGNet/myDataSet_extended_negatives/{}".format(ssd_size)
 
     # Find most recent snapshot of the model
     max_iter = 0
     for file in os.listdir(snapshot_dir):
       if file.endswith(".caffemodel"):
         basename = os.path.splitext(file)[0]
-        iter = int(basename.split("VGG_myDataSet_extended_{}_iter_".format(ssd_size))[1])
+        iter = int(basename.split("VGG_myDataSet_extended_negatives_{}_iter_".format(ssd_size))[1])
         if iter > max_iter:
           max_iter = iter
 
@@ -57,8 +57,8 @@ for ssd_size in ['SSD_300x300', 'SSD_500x500']:
       sys.exit()
 
     # load model
-    model_def = 'models/VGGNet/myDataSet_extended/{}/deploy.prototxt'.format(ssd_size)
-    model_weights = 'models/VGGNet/myDataSet_extended/{}/VGG_myDataSet_extended_{}_iter_{}.caffemodel'.format(ssd_size, ssd_size, max_iter)
+    model_def = 'models/VGGNet/myDataSet_extended_negatives/{}/deploy.prototxt'.format(ssd_size)
+    model_weights = 'models/VGGNet/myDataSet_extended_negatives/{}/VGG_myDataSet_extended_negatives_{}_iter_{}.caffemodel'.format(ssd_size, ssd_size, max_iter)
 
     net = caffe.Net(model_def,      # defines the structure of the model
                     model_weights,  # contains the trained weights
@@ -115,7 +115,7 @@ for ssd_size in ['SSD_300x300', 'SSD_500x500']:
     colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
 
     plt.figure()
-    plt.title('VGG_myDataSet_extended_{}'.format(ssd_size))
+    plt.title('VGG_myDataSet_extended_negatives_{}'.format(ssd_size))
     currentAxis = plt.gca()
     plt.imshow(image)
     plt.axis('off')
@@ -138,4 +138,4 @@ for ssd_size in ['SSD_300x300', 'SSD_500x500']:
     query = raw_input("Save image (yes/no)? ")
     if query == 'yes':
         plt.savefig('/home/pjoh/Bilder/'+sys.argv[1].split("/")[-1].split(".")[0]
-                    +'_{}.jpg'.format(ssd_size), bbox_inches='tight', pad_inches = 0)
+                    +'_VGG_myDataSet_extended_negatives_{}.jpg'.format(ssd_size), bbox_inches='tight', pad_inches = 0)
