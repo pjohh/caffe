@@ -16,9 +16,9 @@ import matplotlib.pyplot as plt
 import cv2
 
 cap = cv2.VideoCapture(0)
-#cap.set(3,640)
-#cap.set(4,480)
-out = cv2.VideoWriter('output.avi',cv2.cv.CV_FOURCC(*'XVID'), 20, (640,480))
+cap.set(3,1280)
+cap.set(4,720)
+out = cv2.VideoWriter('output.avi',cv2.cv.CV_FOURCC(*'XVID'), 4, (1280,720))
 
 # Use GPU or CPU
 caffe.set_mode_gpu()
@@ -110,6 +110,8 @@ while True:
 
     colors = [(255,0,0), (0,255,0), (0,0,255), (255,255,0), (255,0,255), (0,255,255), (0,0,0)]
 
+    colors2 = {"robot": (255,0,0), "base_station": (0,255,0), "mug": (0,0,255), "battery": (255,0,255)}
+
     overlay = image.copy()
 
     for i in xrange(top_conf.shape[0]):
@@ -121,10 +123,10 @@ while True:
         label = top_labels[i]
         name = '%s: %.2f'%(label, score)
         coords = (xmin, ymin), xmax-xmin+1, ymax-ymin+1
-        color = colors[i % len(colors)]
-        cv2.rectangle(image,(xmin,ymin),(xmax,ymax),color,3)
-        retval, baseline = cv2.getTextSize(name, cv2.FONT_HERSHEY_SIMPLEX, 1, 2)
-        cv2.rectangle(overlay, (xmin,ymin), (xmin+retval[0]-25,ymin-retval[1]-baseline), (255,255,255),-1)
+        color = colors2[label]
+        cv2.rectangle(image,(xmin,ymin),(xmax,ymax),color,2)
+        retval, baseline = cv2.getTextSize(name, cv2.FONT_HERSHEY_DUPLEX, 0.5, 1)
+        cv2.rectangle(overlay, (xmin,ymin), (xmin+retval[0],ymin-retval[1]-baseline), (255,255,255),-1)
     
     cv2.addWeighted(overlay, 0.4, image, 0.6, 0.0, image)
     
@@ -137,8 +139,8 @@ while True:
         label = top_labels[i]
         name = '%s: %.2f'%(label, score)
         coords = (xmin, ymin), xmax-xmin+1, ymax-ymin+1
-        color = colors[i % len(colors)]
-        cv2.putText(image, name,(xmin,ymin-baseline), cv2.FONT_HERSHEY_SIMPLEX, 0.8,(0,0,0),2)
+        color = colors2[label]
+        cv2.putText(image, name,(xmin,ymin-baseline), cv2.FONT_HERSHEY_DUPLEX, 0.5,(0,0,0),1)
    
     cv2.imshow("detections", image)
     out.write(image)
