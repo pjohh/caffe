@@ -1070,6 +1070,7 @@ void VisualizeBBox(const vector<cv::Mat>& images, const Blob<Dtype>* detections,
                     fontface, scale, CV_RGB(0, 0, 0), thickness, 8);
       }
     }
+    LOG(INFO) << "new frame ...";
     cv::imshow("detections", image);
     if (cv::waitKey(1) == 27) {
       exit(-1);
