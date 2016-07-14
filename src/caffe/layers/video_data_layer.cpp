@@ -129,6 +129,10 @@ void VideoDataLayer<Dtype>::load_batch(Batch<Dtype>* batch) {
         LOG(INFO) << "Finished processing video.";
         raise(SIGINT);
       }
+      //for (int skip_frame = 0; skip_frame < 9; ++skip_frame){
+      //  cap_.grab();
+      //  ++processed_frames_;
+      //}
       ++processed_frames_;
       cap_ >> cv_img;
     } else {
