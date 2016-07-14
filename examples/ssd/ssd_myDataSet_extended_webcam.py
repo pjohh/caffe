@@ -102,7 +102,7 @@ visualize_threshold = 0.2
 webcam_width = 640
 webcam_height = 480
 # Scale the image size for display.
-scale = 2
+scale = 1.5
 
 ### Hopefully you don't need to change the following ###
 resize = "{}x{}".format(resize_width, resize_height)

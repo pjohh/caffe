@@ -3,7 +3,7 @@
 #include <string>
 #include <utility>
 #include <vector>
-
+#include "opencv2/opencv.hpp"
 #include "boost/iterator/counting_iterator.hpp"
 
 #include "caffe/3rdparty/hungarian.h"
@@ -1035,6 +1035,8 @@ void VisualizeBBox(const vector<cv::Mat>& images, const Blob<Dtype>* detections,
     bbox.set_score(score);
     all_detections[img_idx][label].push_back(bbox);
   }
+  
+  //static cv::VideoWriter output_cap("output.avi", CV_FOURCC('D','I','V','X'), 3, cv::Size(1920,1080));
 
   for (int i = 0; i < num_img; ++i) {
     cv::Mat image = images[i];
@@ -1071,8 +1073,9 @@ void VisualizeBBox(const vector<cv::Mat>& images, const Blob<Dtype>* detections,
       }
     }
     LOG(INFO) << "new frame ...";
+    //output_cap.write(image);
     cv::imshow("detections", image);
-    if (cv::waitKey(1) == 27) {
+    if (cv::waitKey(1) != -1) {
       exit(-1);
     }
   }

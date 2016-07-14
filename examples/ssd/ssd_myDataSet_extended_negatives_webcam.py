@@ -99,10 +99,10 @@ test_batch_size = 1
 # Only display high quality detections whose scores are higher than a threshold.
 visualize_threshold = 0.2
 # Size of webcam image.
-webcam_width = 640
-webcam_height = 480
+webcam_width = 1920
+webcam_height = 1080
 # Scale the image size for display.
-scale = 2
+scale = 1
 
 ### Hopefully you don't need to change the following ###
 resize = "{}x{}".format(resize_width, resize_height)

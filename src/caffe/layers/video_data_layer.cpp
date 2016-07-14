@@ -72,6 +72,13 @@ void VideoDataLayer<Dtype>::DataLayerSetUp(
 // This function is called on prefetch thread
 template<typename Dtype>
 void VideoDataLayer<Dtype>::load_batch(Batch<Dtype>* batch) {
+  static bool initialized;
+  if (!initialized) {
+   initialized = true;
+   cap_.set(CV_CAP_PROP_FRAME_WIDTH, 1920);
+   cap_.set(CV_CAP_PROP_FRAME_HEIGHT, 1080);
+  }
+  
   CPUTimer batch_timer;
   batch_timer.Start();
   double read_time = 0;
@@ -79,7 +86,7 @@ void VideoDataLayer<Dtype>::load_batch(Batch<Dtype>* batch) {
   CPUTimer timer;
   CHECK(batch->data_.count());
   CHECK(this->transformed_data_.count());
-
+  
   // Reshape according to the first anno_datum of each batch
   // on single input batches allows for inputs of varying dimension.
   const int batch_size = this->layer_param_.data_param().batch_size();
@@ -101,7 +108,7 @@ void VideoDataLayer<Dtype>::load_batch(Batch<Dtype>* batch) {
   if (this->output_labels_) {
     top_label = batch->label_.mutable_cpu_data();
   }
-
+  
   for (int item_id = 0; item_id < batch_size; ++item_id) {
     timer.Start();
     if (video_type_ == VideoDataParameter_VideoType_WEBCAM) {
