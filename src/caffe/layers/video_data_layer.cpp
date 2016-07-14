@@ -75,8 +75,8 @@ void VideoDataLayer<Dtype>::load_batch(Batch<Dtype>* batch) {
   static bool initialized;
   if (!initialized) {
    initialized = true;
-   cap_.set(CV_CAP_PROP_FRAME_WIDTH, 1920);
-   cap_.set(CV_CAP_PROP_FRAME_HEIGHT, 1080);
+   //cap_.set(CV_CAP_PROP_FRAME_WIDTH, 1920);
+   //cap_.set(CV_CAP_PROP_FRAME_HEIGHT, 1080);
   }
   
   CPUTimer batch_timer;
