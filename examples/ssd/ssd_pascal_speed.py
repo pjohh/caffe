@@ -192,13 +192,13 @@ job_name = "SSD_{}".format(resize)
 model_name = "VGG_VOC0712_{}".format(job_name)
 
 # Directory which stores the model .prototxt file.
-save_dir = "models/VGGNet/VOC0712/{}_score".format(job_name)
+save_dir = "models/VGGNet/VOC0712/{}_speed".format(job_name)
 # Directory which stores the snapshot of trained models.
 snapshot_dir = "models/VGGNet/VOC0712/{}".format(job_name)
 # Directory which stores the job script and log file.
-job_dir = "jobs/VGGNet/VOC0712/{}_score".format(job_name)
+job_dir = "jobs/VGGNet/VOC0712/{}_speed".format(job_name)
 # Directory which stores the detection results.
-output_result_dir = "{}/data/VOCdevkit/results/VOC2007/{}_score/Main".format(os.environ['HOME'], job_name)
+output_result_dir = "{}/data/VOCdevkit/results/VOC2007/{}_speed/Main".format(os.environ['HOME'], job_name)
 
 # model definition files.
 train_net_file = "{}/train.prototxt".format(save_dir)
@@ -350,8 +350,6 @@ solver_param = {
     # Test parameters
     'test_iter': [test_iter],
     'test_interval': 10000,
-    'eval_type': "detection",
-    'ap_version': "11point",
     'test_initialization': True,
     }
 
@@ -362,7 +360,8 @@ det_out_param = {
     'background_label_id': background_label_id,
     'nms_param': {'nms_threshold': 0.45, 'top_k': 400},
     'save_output_param': {
-        'output_directory': output_result_dir,
+        # Not saving results when testing speed.
+        # 'output_directory': output_result_dir,
         'output_name_prefix': "comp4_det_test_",
         'output_format': "VOC",
         'label_map_file': label_map_file,
@@ -424,8 +423,8 @@ shutil.copy(train_net_file, job_dir)
 
 # Create test net.
 net = caffe.NetSpec()
-net.data, net.label = CreateAnnotatedDataLayer(test_data, batch_size=test_batch_size,
-        train=False, output_label=True, label_map_file=label_map_file,
+net.data = CreateAnnotatedDataLayer(test_data, batch_size=test_batch_size,
+        train=False, output_label=False, label_map_file=label_map_file,
         transform_param=test_transform_param)
 
 VGGNetBody(net, from_layer='data', fully_conv=True, reduced=True, dilated=True,
@@ -456,8 +455,7 @@ elif multibox_loss_param["conf_loss_type"] == P.MultiBoxLoss.LOGISTIC:
 net.detection_out = L.DetectionOutput(*mbox_layers,
     detection_output_param=det_out_param,
     include=dict(phase=caffe_pb2.Phase.Value('TEST')))
-net.detection_eval = L.DetectionEvaluate(net.detection_out, net.label,
-    detection_evaluate_param=det_eval_param,
+net.slience = L.Silence(net.detection_out, ntop=0,
     include=dict(phase=caffe_pb2.Phase.Value('TEST')))
 
 with open(test_net_file, 'w') as f:
