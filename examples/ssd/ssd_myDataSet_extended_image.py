@@ -115,7 +115,7 @@ for ssd_size in ['SSD_300x300', 'SSD_500x500']:
     colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
 
     plt.figure()
-    plt.title('VGG_myDataSet_extended_{}'.format(ssd_size))
+    #plt.title('VGG_myDataSet_extended_{}'.format(ssd_size))
     currentAxis = plt.gca()
     plt.imshow(image)
     plt.axis('off')
@@ -130,8 +130,8 @@ for ssd_size in ['SSD_300x300', 'SSD_500x500']:
         name = '%s: %.2f'%(label, score)
         coords = (xmin, ymin), xmax-xmin+1, ymax-ymin+1
         color = colors[i % len(colors)]
-        currentAxis.add_patch(plt.Rectangle(*coords, fill=False, edgecolor=color, linewidth=2))
-        currentAxis.text(xmin, ymin, name, bbox={'facecolor':'white', 'alpha':0.5})
+        currentAxis.add_patch(plt.Rectangle(*coords, fill=False, edgecolor=color, linewidth=3))
+        currentAxis.text(xmin, ymin-30, name, fontsize=21, bbox={'facecolor':'white', 'alpha':0.6})
 
     plt.draw()
 
