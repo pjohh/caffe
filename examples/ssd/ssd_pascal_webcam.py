@@ -11,27 +11,12 @@ import shutil
 import stat
 import subprocess
 import sys
-import getopt
+import argparse
 
-# get image size (300 or 500)
-image_size = 0
-try:
-    opts, args = getopt.getopt(sys.argv[1:],"hs:",["size="])
-except getopt.GetoptError:
-      print('needs -s <image size> argument (300 or 500)')
-      sys.exit(2)
-for opt, arg in opts:
-    if opt == '-h':
-        print('needs -s <image size> argument (300 or 500)')
-        sys.exit()
-    elif opt in ("-s", "--size"):
-         image_size = arg
-
-image_size = int(image_size)
-if image_size != 300 and image_size != 500:
-    print('needs -s <image size> argument (300 or 500)')
-    sys.exit(2)
-
+# parse commandline arguments
+parser = argparse.ArgumentParser()
+parser.add_argument('image_size', type=int, choices=[300, 500], help="image size used by SSD-Algorithm")
+args = parser.parse_args()
 
 # Add extra layers on top of a "base" network (e.g. VGGNet or Inception).
 def AddExtraLayers(net, use_batchnorm=True):
@@ -87,8 +72,8 @@ code_type = P.PriorBox.CENTER_SIZE
 # Stores LabelMapItem.
 label_map_file = "data/VOC0712/labelmap_voc.prototxt"
 # The resized image size
-resize_width = image_size
-resize_height = image_size
+resize_width = args.image_size
+resize_height = args.image_size
 
 # Parameters needed for test.
 # Set the number of test iterations to the maximum integer number.
@@ -182,7 +167,7 @@ pretrain_model = "{}_iter_{}.caffemodel".format(snapshot_prefix, max_iter)
 
 # parameters for generating priors.
 # minimum dimension of input image
-min_dim = image_size
+min_dim = args.image_size
 # conv4_3 ==> 38 x 38
 # fc7 ==> 19 x 19
 # conv6_2 ==> 10 x 10
