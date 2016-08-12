@@ -17,19 +17,25 @@ import argparse
 
 # parse commandline arguments
 parser = argparse.ArgumentParser()
-parser.add_argument('video_source', type=str, help="path to video used as source")
 parser.add_argument('size', type=int, choices=[300, 500], help="image size used by SSD-Algorithm")
-parser.add_argument('overlay_size', type=str, choices=['s', 'm', 'b'], help="size of the overlay in the output video")
+parser.add_argument('resolution', type=int, choices=[640, 1280, 1920], help="resolution of output video")
 parser.add_argument('frame_rate', type=int, help="framerate of output video")
 args = parser.parse_args()
+
+# set resolutions
+if args.resolution == 640: video_res = (640, 480)
+elif args.resolution == 1280: video_res = (1280, 720)
+else: video_res = (1920, 1080)
 
 # set ssd size string
 if args.size == 300: ssd_size = "SSD_300x300"
 else: ssd_size = 'SSD_500x500'
 
 # configure webcam input
-cap = cv2.VideoCapture(args.video_source)
-out = cv2.VideoWriter('output.avi',cv2.cv.CV_FOURCC(*'XVID'), args.frame_rate, (int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH)), int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT))))
+cap = cv2.VideoCapture(0)
+cap.set(3,video_res[0])
+cap.set(4,video_res[1])
+out = cv2.VideoWriter('output.avi',cv2.cv.CV_FOURCC(*'XVID'), args.frame_rate, (video_res[0], video_res[1]))
 
 # Use GPU or CPU
 caffe.set_mode_gpu()
@@ -134,8 +140,8 @@ while True:
         ymax = int(round(top_ymax[i] * image.shape[0]))
         label = top_labels[i]
         color = colors[label]
-        if args.overlay_size == 's': cv2.rectangle(image,(xmin,ymin),(xmax,ymax),color, 2) # 640x480 
-        elif args.overlay_size == 'm': cv2.rectangle(image,(xmin,ymin),(xmax,ymax),color, 4) # 1280x720
+        if video_res[0] == 640: cv2.rectangle(image,(xmin,ymin),(xmax,ymax),color, 2) # 640x480 
+        elif video_res[0] == 1280: cv2.rectangle(image,(xmin,ymin),(xmax,ymax),color, 4) # 1280x720
         else: cv2.rectangle(image,(xmin,ymin),(xmax,ymax),color, 7) # 1920x1080 
     
     cv2.addWeighted(overlay, 0.4, image, 0.6, 0.0, image)
@@ -150,15 +156,15 @@ while True:
         score = top_conf[i]
         label = top_labels[i]
         name = '%s: %.2f'%(label, score)
-        if args.overlay_size == 's': retval, baseline = cv2.getTextSize(name, cv2.FONT_HERSHEY_DUPLEX, 0.6, 2)
-        elif args.overlay_size == 'm': retval, baseline = cv2.getTextSize(name, cv2.FONT_HERSHEY_DUPLEX, 1, 4)
+        if video_res[0] == 640: retval, baseline = cv2.getTextSize(name, cv2.FONT_HERSHEY_DUPLEX, 0.6, 2)
+        elif video_res[0] == 1280: retval, baseline = cv2.getTextSize(name, cv2.FONT_HERSHEY_DUPLEX, 1, 4)
         else: retval, baseline = cv2.getTextSize(name, cv2.FONT_HERSHEY_DUPLEX, 1.4, 6) 
-        cv2.rectangle(overlay, (xmin,ymin), (xmin+retval[0],ymin-retval[1]-baseline), (255,255,255),-1)
+        cv2.rectangle(image, (xmin,ymin), (xmin+retval[0],ymin-retval[1]-baseline), (255,255,255),-1)
     # add fps display
     fps = 'fps: %.2f'%(1/(time.time() - start_time))
     retval, baseline = cv2.getTextSize(fps, cv2.FONT_HERSHEY_DUPLEX, 1, 4)
-    cv2.rectangle(image, (0,0), (retval[0],retval[1]+baseline), (255,255,255),-1)    
-    
+    cv2.rectangle(image, (0,0), (retval[0],retval[1]+baseline), (255,255,255),-1)
+
     cv2.addWeighted(overlay, 0.6, image, 0.4, 0.0, image)
     
     for i in xrange(top_conf.shape[0]):
@@ -169,8 +175,8 @@ while True:
         score = top_conf[i]
         label = top_labels[i]
         name = '%s: %.2f'%(label, score)
-        if args.overlay_size == 's': cv2.putText(image, name,(xmin,ymin-baseline), cv2.FONT_HERSHEY_DUPLEX, 0.6,(0,0,0), 1) 
-        elif args.overlay_size == 'm': cv2.putText(image, name,(xmin,ymin-baseline+2), cv2.FONT_HERSHEY_DUPLEX, 1,(0,0,0),2)
+        if video_res[0] == 640: cv2.putText(image, name,(xmin,ymin-baseline), cv2.FONT_HERSHEY_DUPLEX, 0.6,(0,0,0), 1) 
+        elif video_res[0] == 1280: cv2.putText(image, name,(xmin,ymin-baseline+2), cv2.FONT_HERSHEY_DUPLEX, 1,(0,0,0),2)
         else: cv2.putText(image, name,(xmin,ymin-baseline), cv2.FONT_HERSHEY_DUPLEX, 1.4,(0,0,0),2) 
     # add text for fps
     cv2.putText(image, fps,(0,retval[1]+baseline/2), cv2.FONT_HERSHEY_DUPLEX, 1,(0,0,0),2) 
