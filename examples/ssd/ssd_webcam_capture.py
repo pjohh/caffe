@@ -165,7 +165,7 @@ while True:
     retval, baseline = cv2.getTextSize(fps, cv2.FONT_HERSHEY_DUPLEX, 1, 4)
     cv2.rectangle(image, (0,0), (retval[0],retval[1]+baseline), (255,255,255),-1)
 
-    cv2.addWeighted(overlay, 0.6, image, 0.4, 0.0, image)
+    cv2.addWeighted(overlay, 0.5, image, 0.5, 0.0, image)
     
     for i in xrange(top_conf.shape[0]):
         xmin = int(round(top_xmin[i] * image.shape[1]))
