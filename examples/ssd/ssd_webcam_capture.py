@@ -178,7 +178,7 @@ while True:
         score = top_conf[i]
         label = top_labels[i]
         name = '%s: %.2f'%(label, score)
-        if video_res[0] == 640: cv2.putText(image, name,(xmin,ymin-baseline), cv2.FONT_HERSHEY_DUPLEX, 0.6,(0,0,0), 1) 
+        if video_res[0] == 640: cv2.putText(image, name,(xmin,ymin-baseline+5), cv2.FONT_HERSHEY_DUPLEX, 0.6,(0,0,0), 1) 
         elif video_res[0] == 1280: cv2.putText(image, name,(xmin,ymin-baseline+2), cv2.FONT_HERSHEY_DUPLEX, 1,(0,0,0),2)
         else: cv2.putText(image, name,(xmin,ymin-baseline), cv2.FONT_HERSHEY_DUPLEX, 1.4,(0,0,0),2) 
     # add text for fps
