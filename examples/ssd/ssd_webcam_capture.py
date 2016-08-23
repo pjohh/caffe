@@ -17,7 +17,7 @@ import argparse
 
 # parse commandline arguments
 parser = argparse.ArgumentParser()
-parser.add_argument('size', type=int, choices=[300, 500], help="image size used by SSD-Algorithm")
+parser.add_argument('size', type=int, choices=[200, 300, 500], help="image size used by SSD-Algorithm")
 parser.add_argument('resolution', type=int, choices=[640, 1280, 1920], help="resolution of output video")
 parser.add_argument('frame_rate', type=int, help="framerate of output video")
 args = parser.parse_args()
@@ -28,7 +28,8 @@ elif args.resolution == 1280: video_res = (1280, 720)
 else: video_res = (1920, 1080)
 
 # set ssd size string
-if args.size == 300: ssd_size = "SSD_300x300"
+if args.size == 200: ssd_size = "SSD_200x200"
+elif args.size == 300: ssd_size = "SSD_300x300"
 else: ssd_size = 'SSD_500x500'
 
 # configure webcam input
@@ -92,7 +93,9 @@ transformer.set_mean('data', np.array([104,117,123])) # mean pixel
 #transformer.set_channel_swap('data', (2,1,0))  # the reference model has channels in BGR order instead of RGB
 
 # reshape data blob
-if ssd_size == "SSD_300x300":
+if ssd_size == "SSD_200x200":
+    net.blobs['data'].reshape(1, 3, 200, 200)
+elif ssd_size == "SSD_300x300":
     net.blobs['data'].reshape(1, 3, 300, 300)
 else:
     net.blobs['data'].reshape(1, 3, 500, 500)

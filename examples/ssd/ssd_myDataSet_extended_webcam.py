@@ -13,7 +13,7 @@ import argparse
 
 # parse commandline arguments
 parser = argparse.ArgumentParser()
-parser.add_argument('image_size', type=int, choices=[300, 500], help="image size used by SSD-Algorithm")
+parser.add_argument('image_size', type=int, choices=[200, 300, 500], help="image size used by SSD-Algorithm")
 args = parser.parse_args()
 
 # Add extra layers on top of a "base" network (e.g. VGGNet or Inception).
@@ -30,7 +30,7 @@ def AddExtraLayers(net, use_batchnorm=True):
     out_layer = "conv6_2"
     ConvBNLayer(net, from_layer, out_layer, use_batchnorm, use_relu, 512, 3, 1, 2)
 
-    for i in xrange(7, 9 if args.image_size == 300 else 10):
+    for i in xrange(7, 9 if args.image_size != 500 else 10):
       from_layer = out_layer
       out_layer = "conv{}_1".format(i)
       ConvBNLayer(net, from_layer, out_layer, use_batchnorm, use_relu, 128, 1, 0, 1)

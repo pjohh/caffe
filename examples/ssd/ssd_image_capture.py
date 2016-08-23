@@ -46,7 +46,7 @@ def get_labelname(labelmap, labels):
         assert found == True
     return labelnames
 
-for ssd_size in ['SSD_300x300', 'SSD_500x500']:
+for ssd_size in ['SSD_200x200', 'SSD_300x300', 'SSD_500x500']:
     snapshot_dir = "models/VGGNet/myDataSet_extended/{}".format(ssd_size)
 
     # Find most recent snapshot of the model
@@ -78,7 +78,9 @@ for ssd_size in ['SSD_300x300', 'SSD_500x500']:
     #transformer.set_channel_swap('data', (2,1,0))  # the reference model has channels in BGR order instead of RGB
 
     # reshape data blob
-    if ssd_size == "SSD_300x300":
+    if ssd_size == "SSD_200x200":
+        net.blobs['data'].reshape(1, 3, 200, 200)
+    elif ssd_size == "SSD_300x300":
         net.blobs['data'].reshape(1, 3, 300, 300)
     else:
         net.blobs['data'].reshape(1, 3, 500, 500)
