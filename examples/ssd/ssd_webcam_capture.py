@@ -186,6 +186,7 @@ while True:
 
     cv2.imshow("detections", image)
     out.write(image)
+
     print("time for frame: {}".format(time.time() - start_time))
     if cv2.waitKey(1) != -1:
         break

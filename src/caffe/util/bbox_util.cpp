@@ -1125,7 +1125,8 @@ vector<cv::Scalar> GetColors(const int n) {
   return colors;
 }
 
-static Timer forward_timer;
+struct timeval tp;
+static long int fps_start_time = 0;
 
 template <typename Dtype>
 void VisualizeBBox(const vector<cv::Mat>& images, const Blob<Dtype>* detections,
@@ -1139,7 +1140,9 @@ void VisualizeBBox(const vector<cv::Mat>& images, const Blob<Dtype>* detections,
     return;
   }
   // Comute FPS.
-  float fps = num_img / forward_timer.Seconds();
+  gettimeofday(&tp, NULL);
+  long int fps_end_time = tp.tv_sec * 1000 + tp.tv_usec / 1000;
+  float fps = num_img / (float(fps_end_time - fps_start_time)/1000);
 
   const Dtype* detections_data = detections->cpu_data();
   const int width = images[0].cols;
@@ -1215,7 +1218,8 @@ void VisualizeBBox(const vector<cv::Mat>& images, const Blob<Dtype>* detections,
       raise(SIGINT);
     }
   }
-  forward_timer.Start();
+  gettimeofday(&tp, NULL);
+  fps_start_time = tp.tv_sec * 1000 + tp.tv_usec / 1000;
 }
 
 template
