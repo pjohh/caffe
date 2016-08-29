@@ -57,9 +57,9 @@ caffe_root = os.getcwd()
 run_soon = True
 
 # The database file for training data
-train_data = "examples/myDataSet/myDataSet_train_lmdb"
+train_data = "examples/myDataSet_extended/myDataSet_extended_train_lmdb"
 # The database file for testing data
-test_data = "examples/myDataSet/myDataSet_val_lmdb"
+test_data = "examples/myDataSet_extended/myDataSet_extended_val_lmdb"
 # Specify the batch sampler.
 resize_width = args.size
 resize_height = args.size
@@ -339,7 +339,7 @@ elif normalization_mode == P.Loss.FULL:
 freeze_layers = ['conv1_1', 'conv1_2', 'conv2_1', 'conv2_2']
 
 # Evaluate on whole test set.
-num_test_image = 15
+num_test_image = 40
 test_batch_size = 1
 test_iter = num_test_image / test_batch_size
 
