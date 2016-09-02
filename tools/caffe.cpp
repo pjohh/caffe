@@ -224,7 +224,7 @@ int train() {
 }
 RegisterBrewFunction(train);
 
-struct timeval tp;
+//struct timeval tp;
 
 // Test: score a model.
 int test() {
@@ -259,14 +259,14 @@ int test() {
     float iter_loss;
     //Timer forward_timer;
     //forward_timer.Start();
-    gettimeofday(&tp, NULL);
-    long int fps_start_time = tp.tv_sec * 1000 + tp.tv_usec / 1000;
+    //gettimeofday(&tp, NULL);
+    //long int fps_start_time = tp.tv_sec * 1000 + tp.tv_usec / 1000;
     const vector<Blob<float>*>& result =
         caffe_net.Forward(&iter_loss);
-    //LOG(INFO) << "Time for Forward Step: " << forward_timer.MilliSeconds() << " ms";
-    gettimeofday(&tp, NULL);
-    long int fps_end_time = tp.tv_sec * 1000 + tp.tv_usec / 1000;
-    LOG(INFO) << "FPS (from caffe forward call): " << 1 / (float(fps_end_time - fps_start_time)/1000);
+    //LOG(INFO) << "FPS: " << 1/forward_timer.Seconds();
+    //gettimeofday(&tp, NULL);
+    //long int fps_end_time = tp.tv_sec * 1000 + tp.tv_usec / 1000;
+    //LOG(INFO) << "FPS (from caffe forward call): " << 1 / (float(fps_end_time - fps_start_time)/1000);
     loss += iter_loss;
     int idx = 0;
     for (int j = 0; j < result.size(); ++j) {

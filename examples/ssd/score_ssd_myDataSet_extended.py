@@ -13,7 +13,7 @@ import argparse
 
 # parse commandline arguments
 parser = argparse.ArgumentParser()
-parser.add_argument('size', type=int, choices=[200, 300, 500], help="image size used by SSD-Algorithm")
+parser.add_argument('image_size', type=int, choices=[100, 200, 300, 500], help="image size used by SSD-Algorithm")
 args = parser.parse_args()
 
 # Add extra layers on top of a "base" network (e.g. VGGNet or Inception).
@@ -30,7 +30,7 @@ def AddExtraLayers(net, use_batchnorm=True):
     out_layer = "conv6_2"
     ConvBNLayer(net, from_layer, out_layer, use_batchnorm, use_relu, 512, 3, 1, 2)
 
-    for i in xrange(7, 9 if args.size != 500 else 10):
+    for i in xrange(7, 8 if args.image_size == 100 else 10 if args.image_size == 500 else 9):
       from_layer = out_layer
       out_layer = "conv{}_1".format(i)
       ConvBNLayer(net, from_layer, out_layer, use_batchnorm, use_relu, 128, 1, 0, 1)
@@ -61,8 +61,8 @@ train_data = "examples/myDataSet_extended/myDataSet_extended_train_lmdb"
 # The database file for testing data
 test_data = "examples/myDataSet_extended/myDataSet_extended_val_lmdb"
 # Specify the batch sampler.
-resize_width = args.size
-resize_height = args.size
+resize_width = args.image_size
+resize_height = args.image_size
 resize = "{}x{}".format(resize_width, resize_height)
 batch_sampler = [
         {
@@ -266,15 +266,17 @@ loss_param = {
 
 # parameters for generating priors.
 # minimum dimension of input image
-min_dim = args.size
+min_dim = args.image_size
 # conv4_3 ==> 38 x 38
 # fc7 ==> 19 x 19
 # conv6_2 ==> 10 x 10
 # conv7_2 ==> 5 x 5
 # conv8_2 ==> 3 x 3
 # pool6 ==> 1 x 1
-if args.size == 500:
+if args.image_size == 500:
     mbox_source_layers = ['conv4_3', 'fc7', 'conv6_2', 'conv7_2', 'conv8_2', 'conv9_2', 'pool6']
+elif args.image_size == 100:
+    mbox_source_layers = ['conv4_3', 'fc7', 'conv6_2', 'conv7_2', 'pool6']
 else:
     mbox_source_layers = ['conv4_3', 'fc7', 'conv6_2', 'conv7_2', 'conv8_2', 'pool6']
 # in percent %
@@ -288,13 +290,17 @@ for ratio in xrange(min_ratio, max_ratio + 1, step):
   max_sizes.append(min_dim * (ratio + step) / 100.)
 min_sizes = [min_dim * 7 / 100.] + min_sizes
 max_sizes = [[]] + max_sizes
-if args.size == 500:
+if args.image_size == 500:
     aspect_ratios = [[2], [2, 3], [2, 3], [2, 3], [2, 3], [2, 3], [2, 3]]
+elif args.image_size == 100:
+    aspect_ratios = [[2], [2, 3], [2, 3], [2, 3], [2, 3]]
 else:
     aspect_ratios = [[2], [2, 3], [2, 3], [2, 3], [2, 3], [2, 3]]
 # L2 normalize conv4_3.
-if args.size == 500:
+if args.image_size == 500:
     normalizations = [20, -1, -1, -1, -1, -1, -1]
+elif args.image_size == 100:
+    normalizations = [20, -1, -1, -1, -1]
 else:
     normalizations = [20, -1, -1, -1, -1, -1]
 # variance used to encode/decode prior bboxes.

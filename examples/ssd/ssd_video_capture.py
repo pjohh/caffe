@@ -18,13 +18,14 @@ import argparse
 # parse commandline arguments
 parser = argparse.ArgumentParser()
 parser.add_argument('video_source', type=str, help="path to video used as source")
-parser.add_argument('size', type=int, choices=[200, 300, 500], help="image size used by SSD-Algorithm")
+parser.add_argument('size', type=int, choices=[100, 200, 300, 500], help="image size used by SSD-Algorithm")
 parser.add_argument('overlay_size', type=str, choices=['s', 'm', 'b'], help="size of the overlay in the output video")
 parser.add_argument('frame_rate', type=int, help="framerate of output video")
 args = parser.parse_args()
 
 # set ssd size string
-if args.size == 200: ssd_size = "SSD_200x200"
+if args.size == 100: ssd_size = "SSD_100x100"
+elif args.size == 200: ssd_size = "SSD_200x200"
 elif args.size == 300: ssd_size = "SSD_300x300"
 else: ssd_size = 'SSD_500x500'
 
@@ -87,7 +88,9 @@ transformer.set_mean('data', np.array([104,117,123])) # mean pixel
 #transformer.set_channel_swap('data', (2,1,0))  # the reference model has channels in BGR order instead of RGB
 
 # reshape data blob
-if ssd_size == "SSD_200x200":
+if ssd_size == "SSD_100x100":
+    net.blobs['data'].reshape(1, 3, 100, 100)
+elif ssd_size == "SSD_200x200":
     net.blobs['data'].reshape(1, 3, 200, 200)
 elif ssd_size == "SSD_300x300":
     net.blobs['data'].reshape(1, 3, 300, 300)
@@ -172,7 +175,7 @@ while True:
         score = top_conf[i]
         label = top_labels[i]
         name = '%s: %.2f'%(label, score)
-        if args.overlay_size == 's': cv2.putText(image, name,(xmin,ymin-baseline), cv2.FONT_HERSHEY_DUPLEX, 0.6,(0,0,0), 1) 
+        if args.overlay_size == 's': cv2.putText(image, name,(xmin,ymin-baseline+5), cv2.FONT_HERSHEY_DUPLEX, 0.6,(0,0,0), 1) 
         elif args.overlay_size == 'm': cv2.putText(image, name,(xmin,ymin-baseline+2), cv2.FONT_HERSHEY_DUPLEX, 1,(0,0,0),2)
         else: cv2.putText(image, name,(xmin,ymin-baseline), cv2.FONT_HERSHEY_DUPLEX, 1.4,(0,0,0),2) 
     # add text for fps
