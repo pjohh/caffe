@@ -18,7 +18,7 @@ import argparse
 # parse commandline arguments
 parser = argparse.ArgumentParser()
 parser.add_argument('video_source', type=str, help="path to video used as source")
-parser.add_argument('size', type=int, choices=[100, 200, 300, 500], help="image size used by SSD-Algorithm")
+parser.add_argument('size', type=int, choices=[100, 200, 300, 301, 302, 500], help="image size used by SSD-Algorithm")
 parser.add_argument('overlay_size', type=str, choices=['s', 'm', 'b'], help="size of the overlay in the output video")
 parser.add_argument('frame_rate', type=int, help="framerate of output video")
 args = parser.parse_args()
@@ -27,6 +27,8 @@ args = parser.parse_args()
 if args.size == 100: ssd_size = "SSD_100x100"
 elif args.size == 200: ssd_size = "SSD_200x200"
 elif args.size == 300: ssd_size = "SSD_300x300"
+elif args.size == 301: ssd_size = "SSD_300x300_dropout"
+elif args.size == 302: ssd_size = "SSD_300x300_adam"
 else: ssd_size = 'SSD_500x500'
 
 # configure webcam input
@@ -37,7 +39,7 @@ out = cv2.VideoWriter('output.avi',cv2.cv.CV_FOURCC(*'XVID'), args.frame_rate, (
 caffe.set_mode_gpu()
 
 # load ILSVRC2015 DET labels
-voc_labelmap_file = 'data/myDataSet_extended/labelmap.prototxt'
+voc_labelmap_file = 'data/robot_dataset/labelmap.prototxt'
 file = open(voc_labelmap_file, 'r')
 voc_labelmap = caffe_pb2.LabelMap()
 text_format.Merge(str(file.read()), voc_labelmap)
@@ -57,14 +59,14 @@ def get_labelname(labelmap, labels):
         assert found == True
     return labelnames
 
-snapshot_dir = "models/VGGNet/myDataSet_extended/{}".format(ssd_size)
+snapshot_dir = "models/VGGNet/robot_dataset/{}".format(ssd_size)
 
 # Find most recent snapshot of the model
 max_iter = 0
 for file in os.listdir(snapshot_dir):
     if file.endswith(".caffemodel"):
         basename = os.path.splitext(file)[0]
-        iter = int(basename.split("VGG_myDataSet_extended_{}_iter_".format(ssd_size))[1])
+        iter = int(basename.split("VGG_robot_dataset_{}_iter_".format(ssd_size))[1])
         if iter > max_iter:
           max_iter = iter
 
@@ -73,8 +75,8 @@ if max_iter == 0:
     sys.exit()
 
 # load model
-model_def = 'models/VGGNet/myDataSet_extended/{}/deploy.prototxt'.format(ssd_size)
-model_weights = 'models/VGGNet/myDataSet_extended/{}/VGG_myDataSet_extended_{}_iter_{}.caffemodel'.format(ssd_size, ssd_size, max_iter)
+model_def = 'models/VGGNet/robot_dataset/{}/deploy.prototxt'.format(ssd_size)
+model_weights = 'models/VGGNet/robot_dataset/{}/VGG_robot_dataset_{}_iter_{}.caffemodel'.format(ssd_size, ssd_size, max_iter)
 
 net = caffe.Net(model_def,      # defines the structure of the model
                 model_weights,  # contains the trained weights
@@ -92,7 +94,7 @@ if ssd_size == "SSD_100x100":
     net.blobs['data'].reshape(1, 3, 100, 100)
 elif ssd_size == "SSD_200x200":
     net.blobs['data'].reshape(1, 3, 200, 200)
-elif ssd_size == "SSD_300x300":
+elif ssd_size == "SSD_300x300" or ssd_size == "SSD_300x300_dropout" or ssd_size == "SSD_300x300_adam":
     net.blobs['data'].reshape(1, 3, 300, 300)
 else:
     net.blobs['data'].reshape(1, 3, 500, 500)
@@ -118,7 +120,7 @@ while True:
     det_ymax = detections[0,0,:,6]
 
     # Get detections with confidence higher than 0.6.
-    top_indices = [i for i, conf in enumerate(det_conf) if conf >= 0.3]
+    top_indices = [i for i, conf in enumerate(det_conf) if conf >= 0.2]
 
     top_conf = det_conf[top_indices]
     top_label_indices = det_label[top_indices].tolist()
@@ -128,8 +130,9 @@ while True:
     top_xmax = det_xmax[top_indices]
     top_ymax = det_ymax[top_indices]
 
-    colors = {"robot": (0,255,0), "base_station": (0,0,255), "mug": (255,0,0), "battery": (0,255,255)}
-    
+    #colors = {"robot": (0,255,0), "base_station": (0,0,255), "mug": (255,0,0), "battery": (0,255,255)}
+    colors = {"robot": (0,255,0), "base_station": (0,0,0), "mug": (0,0,0), "battery": (0,0,0)}
+
     # overlay for outline of objects, box for text and text
     overlay = image.copy()
 
