@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 caffe.set_mode_gpu()
 
 # load PASCAL VOC labels
-voc_labelmap_file = 'data/VOC0712/labelmap_voc.prototxt'
+voc_labelmap_file = 'data/myDataSet_extended/labelmap.prototxt'
 file = open(voc_labelmap_file, 'r')
 voc_labelmap = caffe_pb2.LabelMap()
 text_format.Merge(str(file.read()), voc_labelmap)
@@ -39,8 +39,8 @@ def get_labelname(labelmap, labels):
     return labelnames
 
 # load model
-model_def = 'models/VGGNet/VOC0712/SSD_300x300/deploy.prototxt'
-model_weights = 'models/VGGNet/VOC0712/SSD_300x300/VGG_VOC0712_SSD_300x300_iter_60000.caffemodel'
+model_def = 'models/VGGNet/myDataSet_extended/SSD_100x100/deploy.prototxt'
+model_weights = 'models/VGGNet/myDataSet_extended/SSD_100x100/VGG_myDataSet_extended_SSD_100x100_iter_10000.caffemodel'
 
 net = caffe.Net(model_def,      # defines the structure of the model
                 model_weights,  # contains the trained weights
@@ -54,7 +54,7 @@ transformer.set_raw_scale('data', 255)  # the reference model operates on images
 transformer.set_channel_swap('data', (2,1,0))  # the reference model has channels in BGR order instead of RGB
 
 # reshape data blob
-net.blobs['data'].reshape(1,3,300,300)
+net.blobs['data'].reshape(1,3,100,100)
 
 # load image
 image = caffe.io.load_image(sys.argv[1])
@@ -81,7 +81,7 @@ det_xmax = detections[0,0,:,5]
 det_ymax = detections[0,0,:,6]
 
 # Get detections with confidence higher than 0.6.
-top_indices = [i for i, conf in enumerate(det_conf) if conf >= 0.3]
+top_indices = [i for i, conf in enumerate(det_conf) if conf >= 0.1]
 
 top_conf = det_conf[top_indices]
 top_label_indices = det_label[top_indices].tolist()
