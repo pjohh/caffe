@@ -448,9 +448,13 @@ void Solver<Dtype>::TestDetection(const int test_net_id) {
     if (param_.test_compute_loss()) {
       loss += iter_loss;
     }
+    //LOG(INFO) << "result vector?! for image " << i << " with size " << result.size() << " :" << result[0];
+    //copy(result[0].begin(), result[0].end(), std::ostream_iterator<Blob<Dtype>*>(std::cout, ", "));
     for (int j = 0; j < result.size(); ++j) {
       CHECK_EQ(result[j]->width(), 5);
       const Dtype* result_vec = result[j]->cpu_data();
+      LOG(INFO) << "";
+      LOG(INFO) << "Bild Nummer: " << i+1;
       int num_det = result[j]->height();
       for (int k = 0; k < num_det; ++k) {
         int item_id = static_cast<int>(result_vec[k * 5]);
@@ -462,6 +466,7 @@ void Solver<Dtype>::TestDetection(const int test_net_id) {
           } else {
             all_num_pos[j][label] += static_cast<int>(result_vec[k * 5 + 2]);
           }
+          LOG(INFO) << "label: " << label << " | ground truth: " << result_vec[k * 5 + 2];
         } else {
           // Normal row storing detection status.
           float score = result_vec[k * 5 + 2];
@@ -474,10 +479,61 @@ void Solver<Dtype>::TestDetection(const int test_net_id) {
           }
           all_true_pos[j][label].push_back(std::make_pair(score, tp));
           all_false_pos[j][label].push_back(std::make_pair(score, fp));
+          LOG(INFO) << "label: " << label << " | score: " << std::fixed << std::setprecision(3) << score << " | tp: " << tp << " | fp: " << fp;
         }
       }
     }
   }
+  LOG(INFO) << "---------------------------------------";
+  for(map<int, map<int, int> >::const_iterator it = all_num_pos.begin();
+    it != all_num_pos.end(); ++it)
+  {
+    LOG(INFO) << "Ground Truth detections per class:";
+    
+    for(map<int, int>::const_iterator iter = it -> second.begin();
+    iter != it -> second.end(); ++iter){
+      LOG(INFO) << "label: " << iter->first << " | Detections: " << iter->second;
+    }
+  }
+  LOG(INFO) << "---------------------------------------";
+  float treshold = 0.3;
+  LOG(INFO) << "Threshold for Detections: " << treshold;
+  for(map<int, map<int, vector<pair<float, int> > > >::const_iterator it = all_true_pos.begin();
+    it != all_true_pos.end(); ++it)
+  {
+    LOG(INFO) << "True Positive detections per class:";
+    
+    for(map<int, vector<pair<float, int> > >::const_iterator iter = it -> second.begin();
+    iter != it -> second.end(); ++iter){
+      //LOG(INFO) << "class: " << iter->first << " Detections: ";
+      int detect = 0;
+      for(int i = 0; i < iter -> second.size(); i++)
+      {
+        //LOG(INFO) << iter -> second[i].first << ", " << iter -> second[i].second;
+        if(iter -> second[i].second == 1 && iter -> second[i].first > treshold) ++detect;
+      }
+      LOG(INFO) << "label: " << iter->first << " | Detections: " << detect;
+    }
+  }
+  for(map<int, map<int, vector<pair<float, int> > > >::const_iterator it = all_false_pos.begin();
+    it != all_false_pos.end(); ++it)
+  {
+    LOG(INFO) << "False Positive detections per class:";
+    
+    for(map<int, vector<pair<float, int> > >::const_iterator iter = it -> second.begin();
+    iter != it -> second.end(); ++iter){
+      //LOG(INFO) << "class: " << iter->first << " Detections: ";
+      int detect = 0;
+      for(int i = 0; i < iter -> second.size(); i++)
+      {
+        //LOG(INFO) << iter -> second[i].first << ", " << iter -> second[i].second;
+        if(iter -> second[i].second == 1 && iter -> second[i].first > treshold) ++detect;
+      }
+      LOG(INFO) << "label: " << iter->first << " | Detections: " << detect;
+    }
+  }
+  LOG(INFO) << "---------------------------------------";
+
   if (requested_early_exit_) {
     LOG(INFO)     << "Test interrupted.";
     return;
@@ -503,11 +559,13 @@ void Solver<Dtype>::TestDetection(const int test_net_id) {
     const map<int, int>& num_pos = all_num_pos.find(i)->second;
     map<int, float> APs;
     float mAP = 0.;
+    LOG(INFO) << "Average Precision (metric: " << param_.ap_version() << ")";
     // Sort true_pos and false_pos with descend scores.
     for (map<int, int>::const_iterator it = num_pos.begin();
          it != num_pos.end(); ++it) {
       int label = it->first;
       int label_num_pos = it->second;
+      //LOG(INFO) << "num pos for label " << label << ": " << label_num_pos;
       if (true_pos.find(label) == true_pos.end()) {
         LOG(WARNING) << "Missing true_pos for label: " << label;
         continue;
@@ -524,11 +582,17 @@ void Solver<Dtype>::TestDetection(const int test_net_id) {
       ComputeAP(label_true_pos, label_num_pos, label_false_pos,
                 param_.ap_version(), &prec, &rec, &(APs[label]));
       mAP += APs[label];
+      LOG(INFO) << "label: " << label << " | AP: " << std::fixed << std::setprecision(4) << APs[label];
+      //LOG(INFO) << "Precision with size " << prec.size() << " :";
+      //copy(prec.begin(), prec.end(), std::ostream_iterator<float>(std::cout, ", "));
+      //LOG(INFO) << "Recall with size " << prec.size() << " :";
+      //copy(rec.begin(), rec.end(), std::ostream_iterator<float>(std::cout, ", "));
     }
     mAP /= num_pos.size();
     const int output_blob_index = test_net->output_blob_indices()[i];
     const string& output_name = test_net->blob_names()[output_blob_index];
-    LOG(INFO) << "    Test net output #" << i << ": " << output_name << " = "
+    LOG(INFO) << "---------------------------------------";
+    LOG(INFO) << "Test net output #" << i << ": " << output_name << " = "
               << mAP;
   }
 }
