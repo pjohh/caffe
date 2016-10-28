@@ -496,7 +496,7 @@ void Solver<Dtype>::TestDetection(const int test_net_id) {
     }
   }
   LOG(INFO) << "---------------------------------------";
-  float treshold = 0.3;
+  float treshold = 0.2;
   LOG(INFO) << "Threshold for Detections: " << treshold;
   for(map<int, map<int, vector<pair<float, int> > > >::const_iterator it = all_true_pos.begin();
     it != all_true_pos.end(); ++it)

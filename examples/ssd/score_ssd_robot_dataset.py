@@ -27,6 +27,13 @@ elif args.image_size == 303:
 elif args.image_size == 333:
   ssd_size = "300x300_dropout"
 
+if args.image_size >= 300 and args.image_size <=399:
+  args.image_size = 300
+if args.image_size >= 200 and args.image_size <=299:
+  args.image_size = 200
+if args.image_size >= 500 and args.image_size <=599:
+  args.image_size = 500
+
 # Add extra layers on top of a "base" network (e.g. VGGNet or Inception).
 def AddExtraLayers(net, use_batchnorm=True):
     use_relu = True
@@ -356,7 +363,7 @@ elif normalization_mode == P.Loss.FULL:
 freeze_layers = ['conv1_1', 'conv1_2', 'conv2_1', 'conv2_2']
 
 # Evaluate on whole test set.
-num_test_image = 350
+num_test_image = 210
 test_batch_size = 1
 test_iter = num_test_image / test_batch_size
 
@@ -401,7 +408,7 @@ det_out_param = {
         'num_test_image': num_test_image,
         },
     'keep_top_k': 200,
-    'confidence_threshold': 0.1,
+    'confidence_threshold': 0.01,
     'code_type': code_type,
     }
 

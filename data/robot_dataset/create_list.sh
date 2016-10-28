@@ -1,7 +1,9 @@
 #!/bin/bash
 
 # set dirs for data and caffe scripts
-root_dir=$HOME/data/robot_dataset/nhg
+root_dir=$HOME/data/robot_dataset
+train_dir=nhg
+val_dir=weinholdbau
 img_dir=Images
 anno_dir=Annotations
 bash_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -19,19 +21,35 @@ do
   
   # load trainval.txt / test.txt
   echo "Create list for $dataset..."
-  dataset_file=$root_dir/$img_dir/$dataset.txt
+  if [ $dataset == "train" ]
+  then
+    dataset_file=$root_dir/$train_dir/$img_dir/$dataset.txt
+  else
+    dataset_file=$root_dir/$val_dir/$img_dir/$dataset.txt
+  fi
 
   # tmp file for image paths
   img_file=$bash_dir/$dataset"_img.txt"
   cp $dataset_file $img_file
   # add path
-  sed -i "s/^/$img_dir\//g" $img_file
+  if [ $dataset == "train" ]
+  then
+    sed -i "s/^/$train_dir\/$img_dir\//g" $img_file
+  else
+    sed -i "s/^/$val_dir\/$img_dir\//g" $img_file
+  fi
+  
   
   # tmp file for label/annotation paths
   label_file=$bash_dir/$dataset"_label.txt"
   cp $dataset_file $label_file
   #sed -i -r 's/\s+\S+$//' $label_file
-  sed -i "s/^/$anno_dir\//g" $label_file
+   if [ $dataset == "train" ]
+  then
+    sed -i "s/^/$train_dir\/$anno_dir\//g" $label_file
+  else
+    sed -i "s/^/$val_dir\/$anno_dir\//g" $label_file
+  fi
   sed -i "s/.jpg/.xml/g" $label_file
 
   paste -d' ' $img_file $label_file >> $dst_file

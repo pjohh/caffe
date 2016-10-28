@@ -4,7 +4,7 @@ root_dir=$cur_dir/../..
 cd $root_dir
 
 redo=1
-data_root_dir="$HOME/data/robot_dataset/nhg/"
+data_root_dir="$HOME/data/robot_dataset"
 dataset_name="robot_dataset"
 mapfile="$root_dir/data/$dataset_name/labelmap.prototxt"
 anno_type="detection"
