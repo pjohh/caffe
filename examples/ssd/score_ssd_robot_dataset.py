@@ -13,19 +13,39 @@ import argparse
 
 # parse commandline arguments
 parser = argparse.ArgumentParser()
-parser.add_argument('image_size', type=int, choices=[200, 300, 303, 305, 333], help="image size used by SSD-Algorithm")
+parser.add_argument('image_size', type=int, choices=[200, 205, 222, 300, 301, 303, 304, 305, 310, 311, 333, 500, 505, 555], help="image size used by SSD-Algorithm")
 args = parser.parse_args()
 
 if args.image_size == 200:
   ssd_size = "200x200"
+if args.image_size == 205:
+  ssd_size = "200x200_5%"
+if args.image_size == 222:
+  ssd_size = "200x200_dropout"
+
 elif args.image_size == 300:
   ssd_size = "300x300"
-elif args.image_size == 305:
-  ssd_size = "300x300_5%"
+elif args.image_size == 301:
+  ssd_size = "300x300_1%"
 elif args.image_size == 303:
   ssd_size = "300x300_3%"
+elif args.image_size == 304:
+  ssd_size = "300x300_4%"
+elif args.image_size == 305:
+  ssd_size = "300x300_5%"
+elif args.image_size == 310:
+  ssd_size = "300x300_loss_full"
+elif args.image_size == 311:
+  ssd_size = "300x300_share_loc_false"
 elif args.image_size == 333:
   ssd_size = "300x300_dropout"
+
+if args.image_size == 500:
+  ssd_size = "500x500"
+if args.image_size == 505:
+  ssd_size = "500x500_5%"
+if args.image_size == 555:
+  ssd_size = "500x500_dropout"
 
 if args.image_size >= 300 and args.image_size <=399:
   args.image_size = 300
@@ -339,7 +359,7 @@ num_gpus = len(gpulist)
 batch_size = 1
 accum_batch_size = 1
 iter_size = accum_batch_size / batch_size
-solver_mode = P.Solver.GPU
+solver_mode = P.Solver.CPU
 device_id = 0
 batch_size_per_device = batch_size
 if solver_mode == P.Solver.GPU and num_gpus > 0:
