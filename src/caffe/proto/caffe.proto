@@ -647,6 +647,12 @@ message NoiseParameter {
 
   // Color space conversion
   optional bool convert_to_lab = 13 [default = false];
+
+  // Color Noise
+  optional float color_noise = 14 [default = 0];
+
+  // Brightness Noise
+  optional float brightness_noise = 15 [default = 0];
 }
 
 // Message that stores parameters shared by loss layers

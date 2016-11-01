@@ -394,6 +394,16 @@ cv::Mat ApplyResize(const cv::Mat& in_img, const ResizeParameter& param) {
 
 cv::Mat ApplyNoise(const cv::Mat& in_img, const NoiseParameter& param) {
   cv::Mat out_img;
+  
+  if (param.brightness_noise() > 0) {
+    CHECK(param.brightness_noise() < 1) << "brightness noise needs to be < 1 !!!";
+    LOG(INFO) << "Apply Brightness Noise with " << param.brightness_noise()*100 << "% Noise";
+  }
+  
+  if (param.color_noise() > 0) {
+    CHECK(param.color_noise() < 1) << "color noise needs to be < 1 !!!";
+    LOG(INFO) << "Apply Color Noise with " << param.color_noise()*100 << "% Noise";
+  }
 
   if (param.decolorize()) {
     cv::Mat grayscale_img;
