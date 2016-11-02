@@ -396,23 +396,28 @@ cv::Mat ApplyNoise(const cv::Mat& in_img, const NoiseParameter& param) {
   cv::Mat out_img;
   
   if (param.brightness_noise() > 0 || param.color_noise() > 0) {
-    CHECK(param.brightness_noise() < 1) << "brightness noise needs to be < 1 !!!";
-    float brightness_noise;
-    caffe_rng_uniform(1, static_cast<float>(0), param.brightness_noise(), &brightness_noise);
-    if (int(brightness_noise*1000)%2 == 1) brightness_noise = brightness_noise*-1; 
+    float prob;
+    caffe_rng_uniform(1, static_cast<float>(0), static_cast<float>(1), &prob);
 
-    CHECK(param.color_noise() < 1) << "color noise needs to be < 1 !!!";
-    float color_noise;
-    caffe_rng_uniform(1, 1-param.color_noise(), 1+param.color_noise(), &color_noise);
+    if (prob <= param.prob()) {
+      CHECK(param.brightness_noise() < 1) << "brightness noise needs to be < 1 !!!";
+      float brightness_noise;
+      caffe_rng_uniform(1, static_cast<float>(0), param.brightness_noise(), &brightness_noise);
+      if (int(brightness_noise*1000)%2 == 1) brightness_noise = brightness_noise*-1; 
+
+      CHECK(param.color_noise() < 1) << "color noise needs to be < 1 !!!";
+      float color_noise;
+      caffe_rng_uniform(1, 1-param.color_noise(), 1+param.color_noise(), &color_noise);
     
-    //LOG(INFO) << "brightness noise: " << brightness_noise << " | color noise: " << color_noise;
-    out_img = cv::Mat::zeros(in_img.size(), in_img.type());
+      //LOG(INFO) << "brightness noise: " << brightness_noise << " | color noise: " << color_noise;
+      out_img = cv::Mat::zeros(in_img.size(), in_img.type());
 
-    for(int y = 0; y < in_img.rows; y++ ) { 
-      for( int x = 0; x < in_img.cols; x++ ) { 
-        for( int c = 0; c < 3; c++ ) { 
-	  if (int(c*1000*color_noise)%2 == 0) out_img.at<cv::Vec3b>(y,x)[c] = cv::saturate_cast<uchar>(color_noise*(in_img.at<cv::Vec3b>(y,x)[c] + brightness_noise*100));
-          else out_img.at<cv::Vec3b>(y,x)[c] = cv::saturate_cast<uchar>(1*(in_img.at<cv::Vec3b>(y,x)[c] + brightness_noise*100));
+      for(int y = 0; y < in_img.rows; y++ ) { 
+        for( int x = 0; x < in_img.cols; x++ ) { 
+          for( int c = 0; c < 3; c++ ) { 
+	    if (int(c*1000*color_noise)%2 == 0) out_img.at<cv::Vec3b>(y,x)[c] = cv::saturate_cast<uchar>(color_noise*(in_img.at<cv::Vec3b>(y,x)[c] + brightness_noise*100));
+            else out_img.at<cv::Vec3b>(y,x)[c] = cv::saturate_cast<uchar>(1*(in_img.at<cv::Vec3b>(y,x)[c] + brightness_noise*100));
+	  }
 	}
       }
     }
