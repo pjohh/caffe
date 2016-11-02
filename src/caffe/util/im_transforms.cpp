@@ -395,15 +395,34 @@ cv::Mat ApplyResize(const cv::Mat& in_img, const ResizeParameter& param) {
 cv::Mat ApplyNoise(const cv::Mat& in_img, const NoiseParameter& param) {
   cv::Mat out_img;
   
-  if (param.brightness_noise() > 0) {
+  if (param.brightness_noise() > 0 || param.color_noise() > 0) {
     CHECK(param.brightness_noise() < 1) << "brightness noise needs to be < 1 !!!";
-    LOG(INFO) << "Apply Brightness Noise with " << param.brightness_noise()*100 << "% Noise";
+    float brightness_noise;
+    caffe_rng_uniform(1, static_cast<float>(0), param.brightness_noise(), &brightness_noise);
+    if (int(brightness_noise*1000)%2 == 1) brightness_noise = brightness_noise*-1; 
+
+    CHECK(param.color_noise() < 1) << "color noise needs to be < 1 !!!";
+    float color_noise;
+    caffe_rng_uniform(1, 1-param.color_noise(), 1+param.color_noise(), &color_noise);
+    
+    //LOG(INFO) << "brightness noise: " << brightness_noise << " | color noise: " << color_noise;
+    out_img = cv::Mat::zeros(in_img.size(), in_img.type());
+
+    for(int y = 0; y < in_img.rows; y++ ) { 
+      for( int x = 0; x < in_img.cols; x++ ) { 
+        for( int c = 0; c < 3; c++ ) { 
+	  if (int(c*1000*color_noise)%2 == 0) out_img.at<cv::Vec3b>(y,x)[c] = cv::saturate_cast<uchar>(color_noise*(in_img.at<cv::Vec3b>(y,x)[c] + brightness_noise*100));
+          else out_img.at<cv::Vec3b>(y,x)[c] = cv::saturate_cast<uchar>(1*(in_img.at<cv::Vec3b>(y,x)[c] + brightness_noise*100));
+	}
+      }
+    }
   }
   
-  if (param.color_noise() > 0) {
-    CHECK(param.color_noise() < 1) << "color noise needs to be < 1 !!!";
-    LOG(INFO) << "Apply Color Noise with " << param.color_noise()*100 << "% Noise";
-  }
+  //cv::namedWindow("Original Image", 1);
+  //cv::namedWindow("New Image", 1);
+  //cv::imshow("Original Image", in_img);
+  //cv::imshow("New Image", out_img);
+  //cv::waitKey(0);
 
   if (param.decolorize()) {
     cv::Mat grayscale_img;
