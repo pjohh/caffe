@@ -453,8 +453,8 @@ void Solver<Dtype>::TestDetection(const int test_net_id) {
     for (int j = 0; j < result.size(); ++j) {
       CHECK_EQ(result[j]->width(), 5);
       const Dtype* result_vec = result[j]->cpu_data();
-      LOG(INFO) << "";
-      LOG(INFO) << "Bild Nummer: " << i+1;
+      //LOG(INFO) << "";
+      //LOG(INFO) << "Bild Nummer: " << i+1;
       int num_det = result[j]->height();
       for (int k = 0; k < num_det; ++k) {
         int item_id = static_cast<int>(result_vec[k * 5]);
@@ -466,7 +466,7 @@ void Solver<Dtype>::TestDetection(const int test_net_id) {
           } else {
             all_num_pos[j][label] += static_cast<int>(result_vec[k * 5 + 2]);
           }
-          LOG(INFO) << "label: " << label << " | ground truth: " << result_vec[k * 5 + 2];
+          //LOG(INFO) << "label: " << label << " | ground truth: " << result_vec[k * 5 + 2];
         } else {
           // Normal row storing detection status.
           float score = result_vec[k * 5 + 2];
@@ -479,7 +479,7 @@ void Solver<Dtype>::TestDetection(const int test_net_id) {
           }
           all_true_pos[j][label].push_back(std::make_pair(score, tp));
           all_false_pos[j][label].push_back(std::make_pair(score, fp));
-          LOG(INFO) << "label: " << label << " | score: " << std::fixed << std::setprecision(3) << score << " | tp: " << tp << " | fp: " << fp;
+          //LOG(INFO) << "label: " << label << " | score: " << std::fixed << std::setprecision(3) << score << " | tp: " << tp << " | fp: " << fp;
         }
       }
     }
