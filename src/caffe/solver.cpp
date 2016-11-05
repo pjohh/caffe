@@ -426,6 +426,11 @@ void Solver<Dtype>::TestDetection(const int test_net_id) {
   map<int, map<int, vector<pair<float, int> > > > all_false_pos;
   map<int, map<int, int> > all_num_pos;
   const shared_ptr<Net<Dtype> >& test_net = test_nets_[test_net_id];
+  
+  float threshold = 0.1;
+  LOG(INFO) << "---------------------------------------";
+  LOG(INFO) << "False Positives per Image:";
+
   Dtype loss = 0;
   for (int i = 0; i < param_.test_iter(test_net_id); ++i) {
     SolverAction::Enum request = GetRequestedAction();
@@ -453,8 +458,6 @@ void Solver<Dtype>::TestDetection(const int test_net_id) {
     for (int j = 0; j < result.size(); ++j) {
       CHECK_EQ(result[j]->width(), 5);
       const Dtype* result_vec = result[j]->cpu_data();
-      LOG(INFO) << "";
-      LOG(INFO) << "Bild Nummer: " << i+1;
       int num_det = result[j]->height();
       for (int k = 0; k < num_det; ++k) {
         int item_id = static_cast<int>(result_vec[k * 5]);
@@ -466,7 +469,7 @@ void Solver<Dtype>::TestDetection(const int test_net_id) {
           } else {
             all_num_pos[j][label] += static_cast<int>(result_vec[k * 5 + 2]);
           }
-          LOG(INFO) << "label: " << label << " | ground truth: " << result_vec[k * 5 + 2];
+          //LOG(INFO) << "label: " << label << " | ground truth: " << result_vec[k * 5 + 2];
         } else {
           // Normal row storing detection status.
           float score = result_vec[k * 5 + 2];
@@ -479,7 +482,9 @@ void Solver<Dtype>::TestDetection(const int test_net_id) {
           }
           all_true_pos[j][label].push_back(std::make_pair(score, tp));
           all_false_pos[j][label].push_back(std::make_pair(score, fp));
-          LOG(INFO) << "label: " << label << " | score: " << std::fixed << std::setprecision(3) << score << " | tp: " << tp << " | fp: " << fp;
+          if ((fp == 1) && (score >= threshold)) {
+	    LOG(INFO) << "Image: " << std::setw(3) << std::setfill(' ') << i+1 << " | label: " << label << " | score: " << std::fixed << std::setprecision(3) << score;
+	  }
         }
       }
     }
@@ -496,8 +501,7 @@ void Solver<Dtype>::TestDetection(const int test_net_id) {
     }
   }
   LOG(INFO) << "---------------------------------------";
-  float treshold = 0.2;
-  LOG(INFO) << "Threshold for Detections: " << treshold;
+  LOG(INFO) << "Threshold for Detections: " << threshold;
   for(map<int, map<int, vector<pair<float, int> > > >::const_iterator it = all_true_pos.begin();
     it != all_true_pos.end(); ++it)
   {
@@ -510,7 +514,7 @@ void Solver<Dtype>::TestDetection(const int test_net_id) {
       for(int i = 0; i < iter -> second.size(); i++)
       {
         //LOG(INFO) << iter -> second[i].first << ", " << iter -> second[i].second;
-        if(iter -> second[i].second == 1 && iter -> second[i].first > treshold) ++detect;
+        if(iter -> second[i].second == 1 && iter -> second[i].first > threshold) ++detect;
       }
       LOG(INFO) << "label: " << iter->first << " | Detections: " << detect;
     }
@@ -527,7 +531,7 @@ void Solver<Dtype>::TestDetection(const int test_net_id) {
       for(int i = 0; i < iter -> second.size(); i++)
       {
         //LOG(INFO) << iter -> second[i].first << ", " << iter -> second[i].second;
-        if(iter -> second[i].second == 1 && iter -> second[i].first > treshold) ++detect;
+        if(iter -> second[i].second == 1 && iter -> second[i].first > threshold) ++detect;
       }
       LOG(INFO) << "label: " << iter->first << " | Detections: " << detect;
     }
