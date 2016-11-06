@@ -1177,7 +1177,7 @@ void VisualizeBBox(const vector<cv::Mat>& images, const Blob<Dtype>* detections,
   char buffer[50];
   for (int i = 0; i < num_img; ++i) {
     cv::Mat image = images[i];
-    cv::Mat overlay;
+    cv::Mat overlay, overlay2;
     // Show FPS.
     /* snprintf(buffer, sizeof(buffer), "FPS: %.2f", fps);
     cv::Size text = cv::getTextSize(buffer, fontface, scale, thickness,
@@ -1206,11 +1206,11 @@ void VisualizeBBox(const vector<cv::Mat>& images, const Blob<Dtype>* detections,
       cv::Scalar &color = color_;
 
       image.copyTo(overlay);
+      image.copyTo(overlay2);
       const vector<NormalizedBBox>& bboxes = it->second;
       for (int j = 0; j < bboxes.size(); ++j) {
         cv::Point top_left_pt(bboxes[j].xmin(), bboxes[j].ymin());
         cv::Point bottom_right_pt(bboxes[j].xmax(), bboxes[j].ymax());
-        cv::rectangle(overlay, top_left_pt, bottom_right_pt, color, 2);
         cv::Point bottom_left_pt(bboxes[j].xmin(), bboxes[j].ymax());
         snprintf(buffer, sizeof(buffer), "%s: %.2f", label_name.c_str(),
                  bboxes[j].score());
@@ -1220,8 +1220,12 @@ void VisualizeBBox(const vector<cv::Mat>& images, const Blob<Dtype>* detections,
             overlay, bottom_right_pt + cv::Point(2, 0),
             bottom_right_pt + cv::Point(text.width+5, -text.height-baseline),
             CV_RGB(255, 255, 255), CV_FILLED);
-		cv::addWeighted(overlay, 0.7, image, 0.3 , 0.0, image);
-		cv::putText(image, buffer, bottom_right_pt - cv::Point(-2, baseline),
+	cv::addWeighted(overlay, 1.0, image, 0.0 , 0.0, image);
+	
+	cv::rectangle(overlay2, top_left_pt, bottom_right_pt, color, 2);
+	cv::addWeighted(overlay2, 0.7, image, 0.3 , 0.0, image);
+	
+	cv::putText(image, buffer, bottom_right_pt - cv::Point(-2, baseline),
                     fontface, scale, CV_RGB(0, 0, 0), thickness, 8);
       }
     }
