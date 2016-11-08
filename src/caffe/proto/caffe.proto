@@ -653,6 +653,9 @@ message NoiseParameter {
 
   // Brightness Noise
   optional float brightness_noise = 15 [default = 0];
+
+  // Saturation Noise
+  optional float saturation_noise = 16 [default = 0];
 }
 
 // Message that stores parameters shared by loss layers

@@ -395,39 +395,60 @@ cv::Mat ApplyResize(const cv::Mat& in_img, const ResizeParameter& param) {
 cv::Mat ApplyNoise(const cv::Mat& in_img, const NoiseParameter& param) {
   cv::Mat out_img;
   
-  if (param.brightness_noise() > 0 || param.color_noise() > 0) {
-    float prob;
-    caffe_rng_uniform(1, static_cast<float>(0), static_cast<float>(1), &prob);
-
-    if (prob <= param.prob()) {
-      CHECK(param.brightness_noise() < 1) << "brightness noise needs to be < 1 !!!";
-      float brightness_noise;
+  if (param.brightness_noise() > 0 || param.color_noise() > 0 || param.saturation_noise() > 0) {
+    float prob_brightness, prob_color, prob_saturation;
+    caffe_rng_uniform(1, static_cast<float>(0), static_cast<float>(1), &prob_brightness);
+    caffe_rng_uniform(1, static_cast<float>(0), static_cast<float>(1), &prob_color);
+    caffe_rng_uniform(1, static_cast<float>(0), static_cast<float>(1), &prob_saturation);
+    
+    CHECK(param.brightness_noise() < 1) << "brightness noise needs to be < 1 !!!";
+    float brightness_noise = 0;
+    if (prob_brightness <= param.prob()) {
       caffe_rng_uniform(1, static_cast<float>(0), param.brightness_noise(), &brightness_noise);
       if (int(brightness_noise*1000)%2 == 1) brightness_noise = brightness_noise*-1; 
-
-      CHECK(param.color_noise() < 1) << "color noise needs to be < 1 !!!";
-      float color_noise;
-      caffe_rng_uniform(1, 1-param.color_noise(), 1+param.color_noise(), &color_noise);
+    }
     
-      //LOG(INFO) << "brightness noise: " << brightness_noise << " | color noise: " << color_noise;
-      out_img = cv::Mat::zeros(in_img.size(), in_img.type());
-
-      for(int y = 0; y < in_img.rows; y++ ) { 
-        for( int x = 0; x < in_img.cols; x++ ) { 
-          for( int c = 0; c < 3; c++ ) { 
-	    if (int(c*1000*color_noise)%2 == 0) out_img.at<cv::Vec3b>(y,x)[c] = cv::saturate_cast<uchar>(color_noise*(in_img.at<cv::Vec3b>(y,x)[c] + brightness_noise*100));
-            else out_img.at<cv::Vec3b>(y,x)[c] = cv::saturate_cast<uchar>(1*(in_img.at<cv::Vec3b>(y,x)[c] + brightness_noise*100));
-	  }
+    CHECK(param.saturation_noise() < 1) << "saturation noise needs to be < 1 !!!";
+    float saturation_noise = 0;
+    if (prob_saturation <= param.prob()) {
+      caffe_rng_uniform(1, static_cast<float>(0), param.saturation_noise(), &saturation_noise);
+      if (int(saturation_noise*1000)%2 == 1) saturation_noise = saturation_noise*-1; 
+    }
+    
+    CHECK(param.color_noise() < 1) << "color noise needs to be < 1 !!!";
+    float color_noise = 0;
+    if (prob_color <= param.prob()) {
+      caffe_rng_uniform(1, static_cast<float>(0), param.color_noise(), &color_noise);
+      if (int(color_noise*1000)%2 == 1) color_noise = color_noise*-1;
+    }
+    //caffe_rng_uniform(1, 1-param.color_noise(), 1+param.color_noise(), &color_noise);
+  
+    //LOG(INFO) << "brightness noise: " << brightness_noise << " | color noise: " << color_noise;
+    //out_img = cv::Mat::zeros(in_img.size(), in_img.type());
+    cv::Mat hsv_img;
+    cv::cvtColor(in_img, hsv_img, CV_BGR2HSV);
+    
+    for(int y = 0; y < hsv_img.rows; y++ ) { 
+      for( int x = 0; x < hsv_img.cols; x++ ) { 
+	for( int c = 0; c < 3; c++ ) { 
+	  if (c == 0) hsv_img.at<cv::Vec3b>(y,x)[c] = cv::saturate_cast<uchar>(hsv_img.at<cv::Vec3b>(y,x)[c] + color_noise*100);
+	  if (c == 1) hsv_img.at<cv::Vec3b>(y,x)[c] = cv::saturate_cast<uchar>(hsv_img.at<cv::Vec3b>(y,x)[c] + saturation_noise*100);
+	  if (c == 2) hsv_img.at<cv::Vec3b>(y,x)[c] = cv::saturate_cast<uchar>(hsv_img.at<cv::Vec3b>(y,x)[c] + brightness_noise*100);
+	  //if (int(c*1000*color_noise)%2 == 0) out_img.at<cv::Vec3b>(y,x)[c] = cv::saturate_cast<uchar>(color_noise*(in_img.at<cv::Vec3b>(y,x)[c] + brightness_noise*100));
+	  //else out_img.at<cv::Vec3b>(y,x)[c] = cv::saturate_cast<uchar>(1*(in_img.at<cv::Vec3b>(y,x)[c] + brightness_noise*100));
 	}
       }
     }
+    stringstream ss;
+    ss << "New: b: " << (int)(brightness_noise*100) << " c: " << (int)(color_noise*100) << " s: " << (int)(saturation_noise*100);
+    
+    cv::cvtColor(hsv_img, out_img, CV_HSV2BGR);
+    //cv::namedWindow("Original Image", 1);
+    //cv::namedWindow(ss.str(), 1);
+    cv::imshow("Original Image", in_img);
+    cv::imshow(ss.str(), out_img);
+    cv::waitKey(0);
   }
-  
-  //cv::namedWindow("Original Image", 1);
-  //cv::namedWindow("New Image", 1);
-  //cv::imshow("Original Image", in_img);
-  //cv::imshow("New Image", out_img);
-  //cv::waitKey(0);
 
   if (param.decolorize()) {
     cv::Mat grayscale_img;
