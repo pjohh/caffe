@@ -1125,8 +1125,9 @@ vector<cv::Scalar> GetColors(const int n) {
   return colors;
 }
 
-struct timeval tp;
-static long int fps_start_time = 0;
+//struct timeval tp;
+//static long int fps_start_time = 0;
+static clock_t start_clock = clock();
 
 template <typename Dtype>
 void VisualizeBBox(const vector<cv::Mat>& images, const Blob<Dtype>* detections,
@@ -1139,10 +1140,12 @@ void VisualizeBBox(const vector<cv::Mat>& images, const Blob<Dtype>* detections,
   if (num_det == 0 || num_img == 0) {
     return;
   }
+  
   // Comute FPS.
-  gettimeofday(&tp, NULL);
-  long int fps_end_time = tp.tv_sec * 1000 + tp.tv_usec / 1000;
-  float fps = num_img / (float(fps_end_time - fps_start_time)/1000);
+  //gettimeofday(&tp, NULL);
+  //long int fps_end_time = tp.tv_sec * 1000 + tp.tv_usec / 1000;
+  //float fps = num_img / (float(fps_end_time - fps_start_time)/1000);
+  float fps = num_img / (static_cast<double>(clock() - start_clock) / CLOCKS_PER_SEC);
 
   const Dtype* detections_data = detections->cpu_data();
   const int width = images[0].cols;
@@ -1167,22 +1170,23 @@ void VisualizeBBox(const vector<cv::Mat>& images, const Blob<Dtype>* detections,
   
   //static cv::VideoWriter output_cap("output.avi", CV_FOURCC('D','I','V','X'), 3, cv::Size(1920,1080));
 
-  int fontface = cv::FONT_HERSHEY_SIMPLEX;
-  double scale = 1;
-  int thickness = 2;
+  int fontface = cv::FONT_HERSHEY_DUPLEX;
+  double scale = 0.6;
+  int thickness = 1;
   int baseline = 0;
   char buffer[50];
   for (int i = 0; i < num_img; ++i) {
     cv::Mat image = images[i];
+    cv::Mat overlay, overlay2;
     // Show FPS.
-    snprintf(buffer, sizeof(buffer), "FPS: %.2f", fps);
+    /* snprintf(buffer, sizeof(buffer), "FPS: %.2f", fps);
     cv::Size text = cv::getTextSize(buffer, fontface, scale, thickness,
                                     &baseline);
     cv::rectangle(image, cv::Point(0, 0),
                   cv::Point(text.width, text.height + baseline),
                   CV_RGB(255, 255, 255), CV_FILLED);
     cv::putText(image, buffer, cv::Point(0, text.height + baseline / 2.),
-                fontface, scale, CV_RGB(0, 0, 0), thickness, 8);
+                fontface, scale, CV_RGB(0, 0, 0), thickness, 8);  */
     // Draw bboxes.
     for (map<int, vector<NormalizedBBox> >::iterator it =
          all_detections[i].begin(); it != all_detections[i].end(); ++it) {
@@ -1191,23 +1195,37 @@ void VisualizeBBox(const vector<cv::Mat>& images, const Blob<Dtype>* detections,
       if (label_to_display_name.find(label) != label_to_display_name.end()) {
         label_name = label_to_display_name.find(label)->second;
       }
+
       CHECK_LT(label, colors.size());
-      const cv::Scalar& color = colors[label];
+      cv::Scalar color_;
+      if (label_name == "robot") color_ = cv::Scalar(0, 255, 0);
+	  else if (label_name == "base_station") color_ = cv::Scalar(0, 0, 150);
+	  else if (label_name == "battery") color_ = cv::Scalar(0, 150, 255);
+	  else if (label_name == "mug") color_ = cv::Scalar(255, 128, 0);
+	  else color_ = colors[label];
+      cv::Scalar &color = color_;
+
+      image.copyTo(overlay);
+      image.copyTo(overlay2);
       const vector<NormalizedBBox>& bboxes = it->second;
       for (int j = 0; j < bboxes.size(); ++j) {
         cv::Point top_left_pt(bboxes[j].xmin(), bboxes[j].ymin());
         cv::Point bottom_right_pt(bboxes[j].xmax(), bboxes[j].ymax());
-        cv::rectangle(image, top_left_pt, bottom_right_pt, color, 4);
         cv::Point bottom_left_pt(bboxes[j].xmin(), bboxes[j].ymax());
         snprintf(buffer, sizeof(buffer), "%s: %.2f", label_name.c_str(),
                  bboxes[j].score());
         cv::Size text = cv::getTextSize(buffer, fontface, scale, thickness,
                                         &baseline);
         cv::rectangle(
-            image, bottom_left_pt + cv::Point(0, 0),
-            bottom_left_pt + cv::Point(text.width, -text.height-baseline),
-            color, CV_FILLED);
-        cv::putText(image, buffer, bottom_left_pt - cv::Point(0, baseline),
+            overlay, bottom_right_pt + cv::Point(2, 0),
+            bottom_right_pt + cv::Point(text.width+5, -text.height-baseline),
+            CV_RGB(255, 255, 255), CV_FILLED);
+	cv::addWeighted(overlay, 1.0, image, 0.0 , 0.0, image);
+	
+	cv::rectangle(overlay2, top_left_pt, bottom_right_pt, color, 2);
+	cv::addWeighted(overlay2, 0.7, image, 0.3 , 0.0, image);
+	
+	cv::putText(image, buffer, bottom_right_pt - cv::Point(-2, baseline),
                     fontface, scale, CV_RGB(0, 0, 0), thickness, 8);
       }
     }
@@ -1218,8 +1236,8 @@ void VisualizeBBox(const vector<cv::Mat>& images, const Blob<Dtype>* detections,
       raise(SIGINT);
     }
   }
-  gettimeofday(&tp, NULL);
-  fps_start_time = tp.tv_sec * 1000 + tp.tv_usec / 1000;
+  //gettimeofday(&tp, NULL);
+  //fps_start_time = tp.tv_sec * 1000 + tp.tv_usec / 1000;
 }
 
 template
