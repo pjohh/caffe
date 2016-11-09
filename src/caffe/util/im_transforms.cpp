@@ -439,17 +439,32 @@ cv::Mat ApplyNoise(const cv::Mat& in_img, const NoiseParameter& param) {
 	}
       }
     }
-    stringstream ss;
-    ss << "New: b: " << (int)(brightness_noise*100) << " c: " << (int)(color_noise*100) << " s: " << (int)(saturation_noise*100);
+    //stringstream ss;
+    //ss << "New: b: " << (int)(brightness_noise*100) << " c: " << (int)(color_noise*100) << " s: " << (int)(saturation_noise*100);
     
     cv::cvtColor(hsv_img, out_img, CV_HSV2BGR);
     //cv::namedWindow("Original Image", 1);
     //cv::namedWindow(ss.str(), 1);
-    cv::imshow("Original Image", in_img);
-    cv::imshow(ss.str(), out_img);
-    cv::waitKey(0);
+    //cv::imshow("Original Image", in_img);
+    //cv::imshow(ss.str(), out_img);
+    //cv::waitKey(0);
   }
-
+  
+  if (param.desaturation() > 0 ) {
+    cv::Mat hsv_img;
+    cv::cvtColor(in_img, hsv_img, CV_BGR2HSV);
+    
+    for(int y = 0; y < hsv_img.rows; y++ ) { 
+      for( int x = 0; x < hsv_img.cols; x++ ) {
+	for( int c = 0; c < 3; c++ ) if (c == 1) hsv_img.at<cv::Vec3b>(y,x)[c] = cv::saturate_cast<uchar>(hsv_img.at<cv::Vec3b>(y,x)[c] - param.desaturation()*100);
+      }
+    }
+    cv::cvtColor(hsv_img, out_img, CV_HSV2BGR);
+    //cv::imshow("Original Image", in_img);
+    //cv::imshow("New Image", out_img);
+    //cv::waitKey(0);
+  }
+  
   if (param.decolorize()) {
     cv::Mat grayscale_img;
     cv::cvtColor(in_img, grayscale_img, CV_BGR2GRAY);

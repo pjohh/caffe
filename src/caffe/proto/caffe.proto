@@ -656,6 +656,9 @@ message NoiseParameter {
 
   // Saturation Noise
   optional float saturation_noise = 16 [default = 0];
+  
+  // Desaturation
+  optional float desaturation = 17 [default = 0];
 }
 
 // Message that stores parameters shared by loss layers

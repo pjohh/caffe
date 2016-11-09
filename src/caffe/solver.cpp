@@ -427,7 +427,7 @@ void Solver<Dtype>::TestDetection(const int test_net_id) {
   map<int, map<int, int> > all_num_pos;
   const shared_ptr<Net<Dtype> >& test_net = test_nets_[test_net_id];
   
-  float threshold = 0.1;
+  float threshold = 0.2;
   LOG(INFO) << "---------------------------------------";
   LOG(INFO) << "False Positives per Image:";
 
