@@ -428,8 +428,8 @@ void Solver<Dtype>::TestDetection(const int test_net_id) {
   const shared_ptr<Net<Dtype> >& test_net = test_nets_[test_net_id];
   
   float threshold = 0.2;
-  LOG(INFO) << "---------------------------------------";
-  LOG(INFO) << "False Positives per Image:";
+  //LOG(INFO) << "---------------------------------------";
+  //LOG(INFO) << "False Positives per Image:";
 
   Dtype loss = 0;
   for (int i = 0; i < param_.test_iter(test_net_id); ++i) {
@@ -483,7 +483,7 @@ void Solver<Dtype>::TestDetection(const int test_net_id) {
           all_true_pos[j][label].push_back(std::make_pair(score, tp));
           all_false_pos[j][label].push_back(std::make_pair(score, fp));
           if ((fp == 1) && (score >= threshold)) {
-	    LOG(INFO) << "Image: " << std::setw(3) << std::setfill(' ') << i+1 << " | label: " << label << " | score: " << std::fixed << std::setprecision(3) << score;
+	    //LOG(INFO) << "Image: " << std::setw(3) << std::setfill(' ') << i+1 << " | label: " << label << " | score: " << std::fixed << std::setprecision(3) << score;
 	  }
         }
       }
@@ -587,10 +587,28 @@ void Solver<Dtype>::TestDetection(const int test_net_id) {
                 param_.ap_version(), &prec, &rec, &(APs[label]));
       mAP += APs[label];
       LOG(INFO) << "label: " << label << " | AP: " << std::fixed << std::setprecision(4) << APs[label];
-      //LOG(INFO) << "Precision with size " << prec.size() << " :";
-      //copy(prec.begin(), prec.end(), std::ostream_iterator<float>(std::cout, ", "));
-      //LOG(INFO) << "Recall with size " << prec.size() << " :";
-      //copy(rec.begin(), rec.end(), std::ostream_iterator<float>(std::cout, ", "));
+
+	  /*LOG(INFO) << "true_pos for label : " << label << "\n" << "[ "; 
+      for (std::vector<pair<float, int> >::const_iterator iter = label_true_pos.begin(); iter != label_true_pos.end(); ++iter) {
+	    std::cout << iter->second << ", ";
+	  }
+	  std::cout << "]" << "\n" << std::endl;*/
+      //LOG(INFO) << "rec for label : " << label << "\n" << "[ "; 
+      //for (std::vector<float>::const_iterator iter = rec.begin(); iter != rec.end(); ++iter) {
+	  //  std::cout << *iter << ", ";
+	  //}
+	  //std::cout << "]" << "\n" << std::endl;
+
+      LOG(INFO) << "prec for label : " << label << "\n" << "[ "; 
+      for (std::vector<float>::const_iterator iter = prec.begin(); iter != prec.end(); ++iter) {
+	    std::cout << *iter << ", ";
+	  }
+	  std::cout << "]" << "\n" << std::endl;
+      LOG(INFO) << "rec for label : " << label << "\n" << "[ "; 
+      for (std::vector<float>::const_iterator iter = rec.begin(); iter != rec.end(); ++iter) {
+	    std::cout << *iter << ", ";
+	  }
+	  std::cout << "]" << "\n" << std::endl;
     }
     mAP /= num_pos.size();
     const int output_blob_index = test_net->output_blob_indices()[i];
