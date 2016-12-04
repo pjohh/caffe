@@ -81,12 +81,7 @@ transformer.set_mean('data', np.array([104,117,123])) # mean pixel
 #transformer.set_channel_swap('data', (2,1,0))  # the reference model has channels in BGR order instead of RGB
 
 # reshape data blob
-if image_size == 200:
-    net.blobs['data'].reshape(1, 3, 200, 200)
-elif image_size == 300:
-    net.blobs['data'].reshape(1, 3, 300, 300)
-else:
-    net.blobs['data'].reshape(1, 3, 500, 500)
+net.blobs['data'].reshape(1, 3, image_size, image_size)
 
 # load image
 #image = caffe.io.load_image(sys.argv[1])
