@@ -596,12 +596,12 @@ void Solver<Dtype>::TestDetection(const int test_net_id) {
 	  // gute print methode für prec und rec...
       /*LOG(INFO) << "prec for label : " << label << "\n" << "[ "; 
       for (std::vector<float>::const_iterator iter = prec.begin(); iter != prec.end(); ++iter) {
-	    std::cout << *iter << ", ";
+	    std::cout << std::setprecision(4) << *iter << ", ";
 	  }
 	  std::cout << "]" << "\n" << std::endl;
       LOG(INFO) << "rec for label : " << label << "\n" << "[ "; 
       for (std::vector<float>::const_iterator iter = rec.begin(); iter != rec.end(); ++iter) {
-	    std::cout << *iter << ", ";
+	    std::cout << std::setprecision(4) << *iter << ", ";
 	  }
 	  std::cout << "]" << "\n" << std::endl;*/
     }
