@@ -427,7 +427,7 @@ void Solver<Dtype>::TestDetection(const int test_net_id) {
   map<int, map<int, int> > all_num_pos;
   const shared_ptr<Net<Dtype> >& test_net = test_nets_[test_net_id];
   
-  float threshold = 0.2;
+  float threshold[4]  = {0.38, 0.1, 0.03, 0.09};
   //LOG(INFO) << "---------------------------------------";
   //LOG(INFO) << "False Positives per Image:";
 
@@ -482,9 +482,9 @@ void Solver<Dtype>::TestDetection(const int test_net_id) {
           }
           all_true_pos[j][label].push_back(std::make_pair(score, tp));
           all_false_pos[j][label].push_back(std::make_pair(score, fp));
-          if ((fp == 1) && (score >= threshold)) {
-	    //LOG(INFO) << "Image: " << std::setw(3) << std::setfill(' ') << i+1 << " | label: " << label << " | score: " << std::fixed << std::setprecision(3) << score;
-	  }
+          //if ((fp == 1) && (score >= threshold[label -1])) {
+	  //    LOG(INFO) << "Image: " << std::setw(3) << std::setfill(' ') << i+1 << " | label: " << label << " | score: " << std::fixed << std::setprecision(3) << score;
+	  //}
         }
       }
     }
@@ -501,7 +501,6 @@ void Solver<Dtype>::TestDetection(const int test_net_id) {
     }
   }
   LOG(INFO) << "---------------------------------------";
-  LOG(INFO) << "Threshold for Detections: " << threshold;
   for(map<int, map<int, vector<pair<float, int> > > >::const_iterator it = all_true_pos.begin();
     it != all_true_pos.end(); ++it)
   {
@@ -514,9 +513,9 @@ void Solver<Dtype>::TestDetection(const int test_net_id) {
       for(int i = 0; i < iter -> second.size(); i++)
       {
         //LOG(INFO) << iter -> second[i].first << ", " << iter -> second[i].second;
-        if(iter -> second[i].second == 1 && iter -> second[i].first > threshold) ++detect;
+        if(iter -> second[i].second == 1 && iter -> second[i].first > threshold[iter->first -1]) ++detect;
       }
-      LOG(INFO) << "label: " << iter->first << " | Detections: " << detect;
+      LOG(INFO) << "label: " << iter->first << " | Detections: " << std::setw(3) << std::setfill(' ') << detect << " | Threshold: " << threshold[iter->first -1];
     }
   }
   for(map<int, map<int, vector<pair<float, int> > > >::const_iterator it = all_false_pos.begin();
@@ -531,9 +530,9 @@ void Solver<Dtype>::TestDetection(const int test_net_id) {
       for(int i = 0; i < iter -> second.size(); i++)
       {
         //LOG(INFO) << iter -> second[i].first << ", " << iter -> second[i].second;
-        if(iter -> second[i].second == 1 && iter -> second[i].first > threshold) ++detect;
+        if(iter -> second[i].second == 1 && iter -> second[i].first > threshold[iter->first -1]) ++detect;
       }
-      LOG(INFO) << "label: " << iter->first << " | Detections: " << detect;
+      LOG(INFO) << "label: " << iter->first << " | Detections: " << std::setw(3) << std::setfill(' ') << detect << " | Threshold: " << threshold[iter->first -1];
     }
   }
   LOG(INFO) << "---------------------------------------";
@@ -588,18 +587,14 @@ void Solver<Dtype>::TestDetection(const int test_net_id) {
       mAP += APs[label];
       LOG(INFO) << "label: " << label << " | AP: " << std::fixed << std::setprecision(4) << APs[label];
 
-	  /*LOG(INFO) << "true_pos for label : " << label << "\n" << "[ "; 
+      /*LOG(INFO) << "true_pos for label : " << label << "\n" << "[ "; 
       for (std::vector<pair<float, int> >::const_iterator iter = label_true_pos.begin(); iter != label_true_pos.end(); ++iter) {
-	    std::cout << iter->second << ", ";
+	    std::cout << iter->first << ", ";
 	  }
 	  std::cout << "]" << "\n" << std::endl;*/
-      //LOG(INFO) << "rec for label : " << label << "\n" << "[ "; 
-      //for (std::vector<float>::const_iterator iter = rec.begin(); iter != rec.end(); ++iter) {
-	  //  std::cout << *iter << ", ";
-	  //}
-	  //std::cout << "]" << "\n" << std::endl;
 
-      LOG(INFO) << "prec for label : " << label << "\n" << "[ "; 
+	  // gute print methode für prec und rec...
+      /*LOG(INFO) << "prec for label : " << label << "\n" << "[ "; 
       for (std::vector<float>::const_iterator iter = prec.begin(); iter != prec.end(); ++iter) {
 	    std::cout << *iter << ", ";
 	  }
@@ -608,13 +603,13 @@ void Solver<Dtype>::TestDetection(const int test_net_id) {
       for (std::vector<float>::const_iterator iter = rec.begin(); iter != rec.end(); ++iter) {
 	    std::cout << *iter << ", ";
 	  }
-	  std::cout << "]" << "\n" << std::endl;
+	  std::cout << "]" << "\n" << std::endl;*/
     }
     mAP /= num_pos.size();
     const int output_blob_index = test_net->output_blob_indices()[i];
     const string& output_name = test_net->blob_names()[output_blob_index];
     LOG(INFO) << "---------------------------------------";
-    LOG(INFO) << "Test net output #" << i << ": " << output_name << " = "
+    LOG(INFO) << "Test net output #" << test_net_id  << ": " << output_name << " = "
               << mAP;
   }
 }

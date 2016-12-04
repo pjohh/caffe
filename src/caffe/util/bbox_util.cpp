@@ -978,6 +978,11 @@ void CumSum(const vector<pair<float, int> >& pairs, vector<int>* cumsum) {
   std::stable_sort(sort_pairs.begin(), sort_pairs.end(),
                    SortScorePairDescend<int>);
 
+  /*LOG(INFO) << "true_pos for label ???\n" << "[ ";
+  for (std::vector<pair<float, int> >::const_iterator iter = sort_pairs.begin(); iter != sort_pairs.end(); ++iter) {
+    std::cout << iter->first << ", ";
+    }
+  std::cout << "]" << "\n" << std::endl;*/
   cumsum->clear();
   for (int i = 0; i < sort_pairs.size(); ++i) {
     if (i == 0) {
