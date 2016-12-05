@@ -83,11 +83,13 @@ transformer.set_mean('data', np.array([104,117,123])) # mean pixel
 # reshape data blob
 net.blobs['data'].reshape(1, 3, image_size, image_size)
 
+it = 0
 # load image
 #image = caffe.io.load_image(sys.argv[1])
 with open(args.image_path) as f:
     content = f.readlines()
     for line in content:
+      it +=1
       image = cv2.imread(args.image_path.rsplit("/", 1)[0] +"/" + line.rsplit("\n", 1)[0])
 
       # preprocess image
@@ -105,9 +107,9 @@ with open(args.image_path) as f:
       det_xmax = detections[0,0,:,5]
       det_ymax = detections[0,0,:,6]
 
+      threshold = [0.38, 0.10, 0.03, 0.09]
       # Get detections with confidence higher than 0.6.
-      top_indices = [i for i, conf in enumerate(det_conf) if conf >= 0.2]
-
+      top_indices = [i for i, conf in enumerate(det_conf) if conf >= threshold[int(det_label[i])-1]]
       top_conf = det_conf[top_indices]
       top_label_indices = det_label[top_indices].tolist()
       top_labels = get_labelname(voc_labelmap, top_label_indices)
@@ -124,15 +126,15 @@ with open(args.image_path) as f:
       overlay = image.copy()
 
       for i in xrange(top_conf.shape[0]):
-	      xmin = int(round(top_xmin[i] * image.shape[1]))
-	      ymin = int(round(top_ymin[i] * image.shape[0]))
-	      xmax = int(round(top_xmax[i] * image.shape[1]))
-	      ymax = int(round(top_ymax[i] * image.shape[0]))
-	      label = top_labels[i]
-	      color = colors[label]
-	      if args.overlay_size == 's': cv2.rectangle(image,(xmin,ymin),(xmax,ymax),color, 2) # 640x480 
-	      elif args.overlay_size == 'm': cv2.rectangle(image,(xmin,ymin),(xmax,ymax),color, 4) # 1280x720
-	      else: cv2.rectangle(image,(xmin,ymin),(xmax,ymax),color, 12) # 1920x1080 
+	xmin = int(round(top_xmin[i] * image.shape[1]))
+	ymin = int(round(top_ymin[i] * image.shape[0]))
+	xmax = int(round(top_xmax[i] * image.shape[1]))
+	ymax = int(round(top_ymax[i] * image.shape[0]))
+	label = top_labels[i]
+	color = colors[label]
+	if args.overlay_size == 's': cv2.rectangle(image,(xmin,ymin),(xmax,ymax),color, 2) # 640x480 
+	elif args.overlay_size == 'm': cv2.rectangle(image,(xmin,ymin),(xmax,ymax),color, 6) # 1920x1080
+	else: cv2.rectangle(image,(xmin,ymin),(xmax,ymax),color, 14) # >1920x1080 
 
       cv2.addWeighted(overlay, 0.2, image, 0.8, 0.0, image)
 
@@ -149,8 +151,8 @@ with open(args.image_path) as f:
 	      label = top_labels[i]
 	      name = '%s: %.2f'%(label, score)
 	      if args.overlay_size == 's': retval, baseline = cv2.getTextSize(name, cv2.FONT_HERSHEY_DUPLEX, 0.6, 1)
-	      elif args.overlay_size == 'm': retval, baseline = cv2.getTextSize(name, cv2.FONT_HERSHEY_DUPLEX, 1, 4)
-	      else: retval, baseline = cv2.getTextSize(name, cv2.FONT_HERSHEY_DUPLEX, 2.8, 6) 
+	      elif args.overlay_size == 'm': retval, baseline = cv2.getTextSize(name, cv2.FONT_HERSHEY_DUPLEX, 1.4, 3)
+	      else: retval, baseline = cv2.getTextSize(name, cv2.FONT_HERSHEY_DUPLEX, 3.2, 6) 
 	      # correct boxes with borders beyond image borders
 	      if xmin+retval[0] > image.shape[1]: 
 		  x_offset.append(image.shape[1] - (xmin+retval[0]))
@@ -170,13 +172,13 @@ with open(args.image_path) as f:
 	      score = top_conf[i]
 	      label = top_labels[i]
 	      name = '%s: %.2f'%(label, score)
-	      if args.overlay_size == 's': cv2.putText(image, name,(xmin,ymax+retval[1]+baseline), cv2.FONT_HERSHEY_DUPLEX, 0.6,(0,0,0), 1) 
-	      elif args.overlay_size == 'm': cv2.putText(image, name,(xmax,ymax-baseline+2), cv2.FONT_HERSHEY_DUPLEX, 1,(0,0,0),2)
-	      else: cv2.putText(image, name,(xmin+x_offset[i],ymax+retval[1]+baseline+y_offset[i]), cv2.FONT_HERSHEY_DUPLEX, 2.8,(0,0,0),4) 
+	      if args.overlay_size == 's': cv2.putText(image, name,(xmin+x_offset[i],ymax+retval[1]+baseline+y_offset[i]), cv2.FONT_HERSHEY_DUPLEX, 0.6,(0,0,0), 1) 
+	      elif args.overlay_size == 'm': cv2.putText(image, name,(xmin+x_offset[i],ymax+retval[1]+baseline+y_offset[i]), cv2.FONT_HERSHEY_DUPLEX, 1.4,(0,0,0),2)
+	      else: cv2.putText(image, name,(xmin+x_offset[i],ymax+retval[1]+baseline+y_offset[i]), cv2.FONT_HERSHEY_DUPLEX, 3.2,(0,0,0),5)
 
       if args.d is True:
 	      cv2.imshow("detections", image)
 	      cv2.waitKey()
 
       if args.s is True:
-	      cv2.imwrite(os.environ['HOME']+'/Bilder/ssd_pictures/' + line.rsplit("\n", 1)[0].rsplit(".", 1)[0] + '_{}.jpg'.format(args.image_size), image)
+          cv2.imwrite(os.environ['HOME']+'/Bilder/ssd_pictures/'+'Bild'+'{0:03d}'.format(it)+'_'+line.rsplit("\n", 1)[0].rsplit(".", 1)[0]+'_{}.jpg'.format(args.image_size), image)

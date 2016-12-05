@@ -102,8 +102,9 @@ det_ymin = detections[0,0,:,4]
 det_xmax = detections[0,0,:,5]
 det_ymax = detections[0,0,:,6]
 
+threshold = [0.38, 0.10, 0.03, 0.09]
 # Get detections with confidence higher than 0.6.
-top_indices = [i for i, conf in enumerate(det_conf) if conf >= 0.2]
+top_indices = [i for i, conf in enumerate(det_conf) if conf >= threshold[int(det_label[i])-1]]
 
 top_conf = det_conf[top_indices]
 top_label_indices = det_label[top_indices].tolist()
@@ -129,8 +130,8 @@ for i in xrange(top_conf.shape[0]):
     label = top_labels[i]
     color = colors[label]
     if args.overlay_size == 's': cv2.rectangle(image,(xmin,ymin),(xmax,ymax),color, 2) # 640x480 
-    elif args.overlay_size == 'm': cv2.rectangle(image,(xmin,ymin),(xmax,ymax),color, 4) # 1280x720
-    else: cv2.rectangle(image,(xmin,ymin),(xmax,ymax),color, 12) # 1920x1080 
+    elif args.overlay_size == 'm': cv2.rectangle(image,(xmin,ymin),(xmax,ymax),color, 5) # 1920x1080
+    else: cv2.rectangle(image,(xmin,ymin),(xmax,ymax),color, 14) # >1920x1080 
 
 cv2.addWeighted(overlay, 0.2, image, 0.8, 0.0, image)
 
@@ -147,13 +148,13 @@ for i in xrange(top_conf.shape[0]):
     label = top_labels[i]
     name = '%s: %.2f'%(label, score)
     if args.overlay_size == 's': retval, baseline = cv2.getTextSize(name, cv2.FONT_HERSHEY_DUPLEX, 0.6, 1)
-    elif args.overlay_size == 'm': retval, baseline = cv2.getTextSize(name, cv2.FONT_HERSHEY_DUPLEX, 1, 4)
-    else: retval, baseline = cv2.getTextSize(name, cv2.FONT_HERSHEY_DUPLEX, 2.8, 6) 
+    elif args.overlay_size == 'm': retval, baseline = cv2.getTextSize(name, cv2.FONT_HERSHEY_DUPLEX, 1.4, 3)
+    else: retval, baseline = cv2.getTextSize(name, cv2.FONT_HERSHEY_DUPLEX, 4, 6) 
 	# correct boxes with borders beyond image borders
     if xmin+retval[0] > image.shape[1]: 
         x_offset.append(image.shape[1] - (xmin+retval[0]))
     else: x_offset.append(0)
-    if ymax+retval[1]+2*baseline > image.shape[0]:
+    if ymin+retval[1]+2*baseline > image.shape[0]:
         y_offset.append(image.shape[0] - (ymax+retval[1]+2*baseline))
     else: y_offset.append(0) 
     cv2.rectangle(image, (xmin+x_offset[i],int(ymax+baseline/3)+y_offset[i]), (xmin+retval[0]+x_offset[i],ymax+retval[1]+2*baseline+y_offset[i]), (255,255,255),-1)
@@ -168,9 +169,9 @@ for i in xrange(top_conf.shape[0]):
     score = top_conf[i]
     label = top_labels[i]
     name = '%s: %.2f'%(label, score)
-    if args.overlay_size == 's': cv2.putText(image, name,(xmin,ymax+retval[1]+baseline), cv2.FONT_HERSHEY_DUPLEX, 0.6,(0,0,0), 1) 
-    elif args.overlay_size == 'm': cv2.putText(image, name,(xmax,ymax-baseline+2), cv2.FONT_HERSHEY_DUPLEX, 1,(0,0,0),2)
-    else: cv2.putText(image, name,(xmin+x_offset[i],ymax+retval[1]+baseline+y_offset[i]), cv2.FONT_HERSHEY_DUPLEX, 2.8,(0,0,0),4) 
+    if args.overlay_size == 's': cv2.putText(image, name,(xmin+x_offset[i],ymax+retval[1]+baseline+y_offset[i]), cv2.FONT_HERSHEY_DUPLEX, 0.6,(0,0,0), 1) 
+    elif args.overlay_size == 'm': cv2.putText(image, name,(xmin+x_offset[i],ymax+retval[1]+baseline+y_offset[i]), cv2.FONT_HERSHEY_DUPLEX, 1.4,(0,0,0),2)
+    else: cv2.putText(image, name,(xmin+x_offset[i],ymax+retval[1]+baseline+y_offset[i]), cv2.FONT_HERSHEY_DUPLEX, 4,(0,0,0),5)
 
 if args.d is True:
     cv2.imshow("detections", image)

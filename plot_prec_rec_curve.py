@@ -8,10 +8,11 @@ data = [line.strip() for line in open("myDataSet_full_SSD300_prk_data.txt", 'r')
 for element in range(len(data)):
   data[element] = eval(data[element])
 
-color_list = ['g', 'r', 'gold', 'b']
+color_list = ['g', 'crimson', '#FFBF00', 'b']
+class_list = ['robot', 'base', 'battery', 'mug']
 
 plt.style.use('classic')
-matplotlib.rcParams.update({'font.size': 6})
+matplotlib.rcParams.update({'font.size': 18})
 
 # plot recall-precision curve
 fig = plt.figure()
@@ -23,11 +24,13 @@ ax.set_ylim([0, 1.05])
 ax.set_xlim([0, 1])
 
 for i in range(0, len(data), 3):
-  plt.plot(data[i+2], data[i+1], linewidth=1.4, color=color_list[i/3])
+    plt.plot(data[i+2], data[i+1], linewidth=2, color=color_list[i/3], label=class_list[i/3])
 
 #plt.axis([0, 1, 0, 1.05])
 plt.ylabel("Precision", fontsize=25, labelpad=20)
 plt.xlabel("Recall", fontsize=25, labelpad=20)
+
+ax.legend(loc=3)
 plt.show()
 
 
@@ -41,9 +44,11 @@ ax.set_ylim([0, 1.05])
 ax.set_xlim([0, 1])
 
 for i in range(0, len(data), 3):
-  plt.plot(data[i+2], data[i], linewidth=1.4, color=color_list[i/3])
+  plt.plot(data[i+2], data[i], linewidth=2, color=color_list[i/3], label=class_list[i/3])
 
 #plt.axis([0, 1, 0, 1.05])
-plt.ylabel("Threshold", fontsize=15, labelpad=20)
-plt.xlabel("Recall", fontsize=15, labelpad=20)
+plt.ylabel("Score", fontsize=25, labelpad=20)
+plt.xlabel("Recall", fontsize=25, labelpad=20)
+
+ax.legend(loc=3)
 plt.show()
