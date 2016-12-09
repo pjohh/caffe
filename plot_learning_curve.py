@@ -2,17 +2,24 @@ import numpy as np
 import re
 import click
 from matplotlib import pylab as plt
-
+import matplotlib
 
 @click.command()
 @click.argument('files', nargs=-1, type=click.Path(exists=True))
 def main(files):
-    plt.style.use('ggplot')
+    plt.style.use('classic')
+    matplotlib.rcParams.update({'font.size': 18})
     fig, ax1 = plt.subplots()
+    plt.grid(linestyle=':', linewidth=1, color='0.5')
     ax2 = ax1.twinx()
-    ax1.set_xlabel('iteration')
-    ax1.set_ylabel('loss')
-    ax2.set_ylabel('AP% (integral)')
+    ax1.set_xlabel('Iteration', fontsize=25, labelpad=20)
+    ax1.set_ylabel('Fehler', fontsize=25, labelpad=20)
+    ax2.set_ylabel('mAP (in %)', fontsize=25, labelpad=20)
+
+    ax1.set_yticks(np.arange(0,21,2))
+    ax1.set_ylim([0, 21])
+    ax2.set_yticks(np.arange(0,101,10))
+    ax2.set_ylim([0, 105])
     for i, log_file in enumerate(files):
         loss_iterations, losses, accuracy_iterations, accuracies, accuracies_iteration_checkpoints_ind, accuracy_iterations2, accuracies2, accuracies_iteration_checkpoints_ind2 = parse_log(log_file)
         disp_results(fig, ax1, ax2, loss_iterations, losses, accuracy_iterations, accuracies, accuracies_iteration_checkpoints_ind, accuracy_iterations2, accuracies2, accuracies_iteration_checkpoints_ind2, color_ind=i)
@@ -80,15 +87,15 @@ def parse_log(log_file):
 def disp_results(fig, ax1, ax2, loss_iterations, losses, accuracy_iterations, accuracies, accuracies_iteration_checkpoints_ind, accuracy_iterations2, accuracies2, accuracies_iteration_checkpoints_ind2, color_ind=0):
     #handles, labels = ax2.get_legend_handles_labels()
     #ax2.legend(handles, labels)
-    modula = len(plt.rcParams['axes.color_cycle'])
-    loss = ax1.plot(loss_iterations, losses, color=plt.rcParams['axes.color_cycle'][(color_ind * 2 + 0) % modula])
-    train_data = ax2.plot(accuracy_iterations2, accuracies2, plt.rcParams['axes.color_cycle'][(color_ind * 2 + 3) % modula], label='train_data')
-    test_data = ax2.plot(accuracy_iterations, accuracies, plt.rcParams['axes.color_cycle'][(color_ind * 2 + 1) % modula], label='test_data')
-    dots_test = ax2.plot(accuracy_iterations[accuracies_iteration_checkpoints_ind], accuracies[accuracies_iteration_checkpoints_ind], '.', color=plt.rcParams['axes.color_cycle'][(color_ind * 2 + 1) % modula])
-    dots_train = ax2.plot(accuracy_iterations2[accuracies_iteration_checkpoints_ind2], accuracies2[accuracies_iteration_checkpoints_ind2], '.', color=plt.rcParams['axes.color_cycle'][(color_ind * 2 + 3) % modula])
+    loss = ax1.plot(loss_iterations, losses, linewidth=2, color='r', label='Kostenfunktion')
+    train_data = ax2.plot(accuracy_iterations2, accuracies2, 'k', linewidth=2, label='Trainingsdaten')
+    test_data = ax2.plot(accuracy_iterations, accuracies, 'b', linewidth=2, label='Validierungsdaten')
+    dots_test = ax2.plot(accuracy_iterations[accuracies_iteration_checkpoints_ind], accuracies[accuracies_iteration_checkpoints_ind], 'o', color='b')
+    dots_train = ax2.plot(accuracy_iterations2[accuracies_iteration_checkpoints_ind2], accuracies2[accuracies_iteration_checkpoints_ind2], 'o', markersize=5, color='k')
     handles, labels = ax2.get_legend_handles_labels()
     ax2.legend(handles, labels)
-    plt.legend(bbox_to_anchor=(1, 1.1))
+    ax1.legend(loc=2, bbox_to_anchor=(-0.01, 1.082)) #-0.01 1.087
+    plt.legend(loc=1, bbox_to_anchor=(1.01, 1.13))
 
 if __name__ == '__main__':
 	main()

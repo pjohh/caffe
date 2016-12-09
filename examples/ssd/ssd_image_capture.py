@@ -30,10 +30,10 @@ image_size = int(args.image_size.split("_", -1)[1].split('x', 1)[0])
 caffe.set_mode_gpu()
 
 # load labels
-voc_labelmap_file = 'data/{}/labelmap.prototxt'.format(args.dataset)
-file = open(voc_labelmap_file, 'r')
-voc_labelmap = caffe_pb2.LabelMap()
-text_format.Merge(str(file.read()), voc_labelmap)
+labelmap_file = 'data/{}/labelmap.prototxt'.format(args.dataset)
+file = open(labelmap_file, 'r')
+labelmap = caffe_pb2.LabelMap()
+text_format.Merge(str(file.read()), labelmap)
 
 def get_labelname(labelmap, labels):
     num_labels = len(labelmap.item)
@@ -108,7 +108,7 @@ top_indices = [i for i, conf in enumerate(det_conf) if conf >= threshold[int(det
 
 top_conf = det_conf[top_indices]
 top_label_indices = det_label[top_indices].tolist()
-top_labels = get_labelname(voc_labelmap, top_label_indices)
+top_labels = get_labelname(labelmap, top_label_indices)
 top_xmin = det_xmin[top_indices]
 top_ymin = det_ymin[top_indices]
 top_xmax = det_xmax[top_indices]
@@ -154,7 +154,7 @@ for i in xrange(top_conf.shape[0]):
     if xmin+retval[0] > image.shape[1]: 
         x_offset.append(image.shape[1] - (xmin+retval[0]))
     else: x_offset.append(0)
-    if ymin+retval[1]+2*baseline > image.shape[0]:
+    if ymax+retval[1]+2*baseline > image.shape[0]:
         y_offset.append(image.shape[0] - (ymax+retval[1]+2*baseline))
     else: y_offset.append(0) 
     cv2.rectangle(image, (xmin+x_offset[i],int(ymax+baseline/3)+y_offset[i]), (xmin+retval[0]+x_offset[i],ymax+retval[1]+2*baseline+y_offset[i]), (255,255,255),-1)

@@ -107,7 +107,7 @@ with open(args.image_path) as f:
       det_xmax = detections[0,0,:,5]
       det_ymax = detections[0,0,:,6]
 
-      threshold = [0.38, 0.10, 0.03, 0.09]
+      threshold = [0.38, 0.27, 0.32, 0.22]
       # Get detections with confidence higher than 0.6.
       top_indices = [i for i, conf in enumerate(det_conf) if conf >= threshold[int(det_label[i])-1]]
       top_conf = det_conf[top_indices]

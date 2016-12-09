@@ -10,6 +10,8 @@
 
 #include "caffe/util/bbox_util.hpp"
 
+#include <fstream>
+
 namespace caffe {
 
 bool SortBBoxAscend(const NormalizedBBox& bbox1, const NormalizedBBox& bbox2) {
@@ -978,11 +980,15 @@ void CumSum(const vector<pair<float, int> >& pairs, vector<int>* cumsum) {
   std::stable_sort(sort_pairs.begin(), sort_pairs.end(),
                    SortScorePairDescend<int>);
 
-  /*LOG(INFO) << "true_pos for label ???\n" << "[ ";
+  /*std::ofstream myfile;
+  myfile.open ("/home/pjoh/workspace/score_prec_rec.txt", ios::app);
+  myfile << "[ ";
   for (std::vector<pair<float, int> >::const_iterator iter = sort_pairs.begin(); iter != sort_pairs.end(); ++iter) {
-    std::cout << iter->first << ", ";
+    myfile << iter->first << ", ";
     }
-  std::cout << "]" << "\n" << std::endl;*/
+  myfile << "]" << "\n";
+  myfile.close();*/
+
   cumsum->clear();
   for (int i = 0; i < sort_pairs.size(); ++i) {
     if (i == 0) {

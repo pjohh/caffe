@@ -12,6 +12,8 @@
 #include "caffe/util/io.hpp"
 #include "caffe/util/upgrade_proto.hpp"
 
+#include <fstream>
+
 namespace caffe {
 
 template<typename Dtype>
@@ -427,9 +429,9 @@ void Solver<Dtype>::TestDetection(const int test_net_id) {
   map<int, map<int, int> > all_num_pos;
   const shared_ptr<Net<Dtype> >& test_net = test_nets_[test_net_id];
   
-  float threshold[4]  = {0.38, 0.1, 0.03, 0.09};
-  //LOG(INFO) << "---------------------------------------";
-  //LOG(INFO) << "False Positives per Image:";
+  float threshold[4]  = {0.2, 0.2, 0.2, 0.2}; //{0.38, 0.27, 0.32, 0.22}; //{0.38, 0.1, 0.03, 0.09};
+  LOG(INFO) << "---------------------------------------";
+  LOG(INFO) << "False Positives per Image:";
 
   Dtype loss = 0;
   for (int i = 0; i < param_.test_iter(test_net_id); ++i) {
@@ -482,9 +484,9 @@ void Solver<Dtype>::TestDetection(const int test_net_id) {
           }
           all_true_pos[j][label].push_back(std::make_pair(score, tp));
           all_false_pos[j][label].push_back(std::make_pair(score, fp));
-          //if ((fp == 1) && (score >= threshold[label -1])) {
-	  //    LOG(INFO) << "Image: " << std::setw(3) << std::setfill(' ') << i+1 << " | label: " << label << " | score: " << std::fixed << std::setprecision(3) << score;
-	  //}
+          if ((fp == 1) && (score >= threshold[label -1])) {
+	        LOG(INFO) << "Image: " << std::setw(3) << std::setfill(' ') << i+1 << " | label: " << label << " | score: " << std::fixed << std::setprecision(3) << score;
+	      }
         }
       }
     }
@@ -594,16 +596,20 @@ void Solver<Dtype>::TestDetection(const int test_net_id) {
 	  std::cout << "]" << "\n" << std::endl;*/
 
 	  // gute print methode für prec und rec...
-      /*LOG(INFO) << "prec for label : " << label << "\n" << "[ "; 
+      /*std::ofstream myfile;
+  	  myfile.open ("/home/pjoh/workspace/score_prec_rec.txt", ios::app);
+      
+      myfile << "[ "; 
       for (std::vector<float>::const_iterator iter = prec.begin(); iter != prec.end(); ++iter) {
-	    std::cout << std::setprecision(4) << *iter << ", ";
+	    myfile << std::setprecision(4) << *iter << ", ";
 	  }
-	  std::cout << "]" << "\n" << std::endl;
-      LOG(INFO) << "rec for label : " << label << "\n" << "[ "; 
+	  myfile << "]" << "\n";
+      myfile << "[ "; 
       for (std::vector<float>::const_iterator iter = rec.begin(); iter != rec.end(); ++iter) {
-	    std::cout << std::setprecision(4) << *iter << ", ";
+	    myfile << std::setprecision(4) << *iter << ", ";
 	  }
-	  std::cout << "]" << "\n" << std::endl;*/
+	  myfile << "]" << "\n";
+      myfile.close();*/
     }
     mAP /= num_pos.size();
     const int output_blob_index = test_net->output_blob_indices()[i];
