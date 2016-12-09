@@ -257,6 +257,7 @@ int train() {
 RegisterBrewFunction(train);
 
 //struct timeval tp;
+static std::vector<float> fps_vec;
 
 // Test: score a model.
 int test() {
@@ -297,6 +298,13 @@ int test() {
     const vector<Blob<float>*>& result =
         caffe_net.Forward(&iter_loss);
     LOG(INFO) << "FPS: " << 1/forward_timer.Seconds();
+    fps_vec.push_back(1/forward_timer.Seconds());
+    if(fps_vec.size() == 50){
+      float sum_of_elems = 0;
+      for(std::vector<float>::iterator it = fps_vec.begin(); it != fps_vec.end(); ++it) sum_of_elems += *it;
+      LOG(INFO) << "!!! FPS gemittelt über " << fps_vec.size() << " Werte: " << sum_of_elems/fps_vec.size();
+      fps_vec.clear();
+    }
     //gettimeofday(&tp, NULL);
     //long int fps_end_time = tp.tv_sec * 1000 + tp.tv_usec / 1000;
     //LOG(INFO) << "FPS (from caffe forward call): " << 1 / (float(fps_end_time - fps_start_time)/1000);
