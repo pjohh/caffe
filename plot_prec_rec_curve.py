@@ -2,9 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
 
-# data needs to be python list [1,2,2,3,...] in order: score[label1],prec[label1],rec[label1],score[label2],...
+# data needs to be python list [1,2,2,3,...] in order: score[label1],score[label1],prec[label1],rec[label1],score[label2],...
 # data ist liste von listen mit strings --> eval
-data = [line.strip() for line in open("robot_dataset_SSD300_conv3_8_prk_data.txt", 'r')]
+data = [line.strip() for line in open("../score_prec_rec.txt", 'r')]
 for element in range(len(data)):
   data[element] = eval(data[element])
   
@@ -18,7 +18,13 @@ for i in range(3, len(data), 4):
   # search in precision for first false positiv -> prec < 1 -> output score
   for j in range(len(data[i-1])):
     if data[i-1][j] < 1:
-      print("first positive for label: {} | with score: {}".format(i/4+1, data[i-3][j]))
+      print("first positive for label: {} | with score: {} | Recall: {}".format(i/4+1, data[i-3][j], data[i][j]))
+      break
+
+  # search in precision < 0.8 
+  for j in range(len(data[i-1])):
+    if data[i-1][j] < 0.8:
+      print("prec >= 80%:               prec: {} | with score: {} | Recall: {}".format(data[i-1][j-1], data[i-3][j-1], data[i][j-1]))
       break
 
 color_list = ['g', 'crimson', '#FFBF00', 'b']
