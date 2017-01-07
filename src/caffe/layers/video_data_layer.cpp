@@ -15,7 +15,7 @@
 
 namespace caffe {
 
-cv::Mat cv_img = cv::imread("test.jpg");
+//cv::Mat cv_img = cv::imread("test.jpg");
 
 template <typename Dtype>
 VideoDataLayer<Dtype>::VideoDataLayer(const LayerParameter& param)
@@ -39,13 +39,13 @@ void VideoDataLayer<Dtype>::DataLayerSetUp(
   video_type_ = video_data_param.video_type();
 
   // Read an image, and use it to initialize the top blob.
-  //cv::Mat cv_img;
+  cv::Mat cv_img;
   if (video_type_ == VideoDataParameter_VideoType_WEBCAM) {
-    //const int device_id = video_data_param.device_id();
-    //if (!cap_.open(device_id)) {
-    //  LOG(FATAL) << "Failed to open webcam: " << device_id;
-    //}
-    //cap_ >> cv_img;
+    const int device_id = video_data_param.device_id();
+    if (!cap_.open(device_id)) {
+      LOG(FATAL) << "Failed to open webcam: " << device_id;
+    }
+    cap_ >> cv_img;
   } else if (video_type_ == VideoDataParameter_VideoType_VIDEO) {
     CHECK(video_data_param.has_video_file()) << "Must provide video file!";
     const string& video_file = video_data_param.video_file();
@@ -55,7 +55,7 @@ void VideoDataLayer<Dtype>::DataLayerSetUp(
     total_frames_ = cap_.get(CV_CAP_PROP_FRAME_COUNT);
     processed_frames_ = 0;
     // Read image to infer shape.
-    //cap_ >> cv_img;
+    cap_ >> cv_img;
     // Set index back to the first frame.
     cap_.set(CV_CAP_PROP_POS_FRAMES, 0);
   } else {
@@ -118,11 +118,11 @@ void VideoDataLayer<Dtype>::load_batch(Batch<Dtype>* batch) {
   
   for (int item_id = 0; item_id < batch_size; ++item_id) {
     timer.Start();
-    //cv::Mat cv_img;
+    cv::Mat cv_img;
     if (video_type_ == VideoDataParameter_VideoType_WEBCAM) {
       // use to skip frames --> reduce input lagg
-      //for (int skip_frame = 0; skip_frame < 10; ++skip_frame) cap_.grab();
-      //cap_ >> cv_img;
+      for (int skip_frame = 0; skip_frame < 10; ++skip_frame) cap_.grab();
+      cap_ >> cv_img;
     } else if (video_type_ == VideoDataParameter_VideoType_VIDEO) {
       if (processed_frames_ >= total_frames_) {
         LOG(INFO) << "Finished processing video.";
