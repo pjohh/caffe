@@ -78,9 +78,9 @@ resize_height = image_size
 
 # Parameters needed for test.
 # Set the number of test iterations to the maximum integer number.
-test_iter = int(math.pow(2, 29) - 1)
+test_iter = int(100)
 # Use GPU or CPU
-solver_mode = P.Solver.GPU
+solver_mode = P.Solver.CPU
 # Defining which GPUs to use.
 gpus = "0"
 # Number of frames to be processed per batch.
@@ -127,7 +127,7 @@ det_out_param = {
     'keep_top_k': 200,
     'confidence_threshold': 0.01,
     'code_type': code_type,
-    'visualize': False,
+    'visualize': True,
     'visualize_threshold': visualize_threshold,
     }
 
@@ -182,7 +182,7 @@ if image_size >= 500:
 else:
     mbox_source_layers = ['conv4_3', 'fc7', 'conv6_2', 'conv7_2', 'conv8_2', 'pool6']
 # in percent %
-min_ratio = 10
+min_ratio = 7
 max_ratio = 95
 step = int(math.floor((max_ratio - min_ratio) / (len(mbox_source_layers) - 2)))
 min_sizes = []
@@ -190,10 +190,10 @@ max_sizes = []
 for ratio in xrange(min_ratio, max_ratio + 1, step):
   min_sizes.append(min_dim * ratio / 100.)
   max_sizes.append(min_dim * (ratio + step) / 100.)
-min_sizes = [min_dim * 7 / 100.] + min_sizes
+min_sizes = [min_dim * 10 / 100.] + min_sizes
 max_sizes = [[]] + max_sizes
 if image_size >= 500:
-    aspect_ratios = [[2], [2, 3], [2, 3], [2, 3], [2, 3], [2, 3], [2, 3]]
+    aspect_ratios = [[2, 3], [2, 3], [2, 3], [2, 3], [2, 3], [2, 3], [2, 3]]
 else:
     aspect_ratios = [[2], [2, 3], [2, 3], [2, 3], [2, 3], [2, 3]]
 # L2 normalize conv4_3.
